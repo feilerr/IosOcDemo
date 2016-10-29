@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BaseViewController.h"
 
-@interface ViewController : UIViewController
+@interface HomeViewController : BaseViewController
 
+- (void)toLogin:(id)sender;
 
 @end
 
