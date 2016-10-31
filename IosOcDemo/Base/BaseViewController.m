@@ -31,9 +31,8 @@
     [view setController:self];
     [view loadDefault];
     if (view == nil){
-        NSLog(@"view为空");
+        NSLog(@"%@view为空",className);
     }
-    NSLog(@"%@",className);
 }
 
 - (void)viewWillAppear:(BOOL)animated{

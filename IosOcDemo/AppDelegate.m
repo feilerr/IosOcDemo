@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "HomeViewController.h"
+#import "TabBarViewController.h"
 
 @interface AppDelegate ()
 
@@ -21,8 +21,8 @@
     self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
     
-    HomeViewController *home = [[HomeViewController alloc]init];
-    [self.window setRootViewController:home];
+    TabBarViewController *tabbar = [[TabBarViewController alloc]init];
+    [self.window setRootViewController:tabbar];
     
     [self.window makeKeyAndVisible];
     return YES;
@@ -62,7 +62,7 @@
 
 @synthesize persistentContainer = _persistentContainer;
 
-- (NSPersistentContainer *)persistentContainer {
+- (NSPersistentContainer *)getPersistentContainer {
     // The persistent container for the application. This implementation creates and returns a container, having loaded the store for the application to it.
     @synchronized (self) {
         if (_persistentContainer == nil) {
