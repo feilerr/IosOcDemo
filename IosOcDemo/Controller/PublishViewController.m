@@ -20,6 +20,12 @@
     self.title = @"发布";
 }
 
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    BaseView *view = (BaseView *)self.view;
+    [view refresh];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

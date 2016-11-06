@@ -15,6 +15,7 @@
 - (void)loadDefault{
     self.frame = self.controller.view.frame;
     self.controller.view = self;
+    
 }
 
 @end

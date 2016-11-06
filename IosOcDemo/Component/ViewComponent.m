@@ -110,3 +110,160 @@
 }
 
 @end
+
+#pragma mark PublishTableCell
+@implementation PublishTableCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.textLabel.font = [UIFont systemFontOfSize:12.];
+        self.backgroundColor = HEXCOLOR(0xFFFFFF);
+        PublishTableCellBackView *backView = [[PublishTableCellBackView alloc]initWithFrame:self.frame];
+        backView.backgroundColor = HEXCOLOR(0xececec);
+        self.selectedBackgroundView = backView;
+        self.textLabel.highlightedTextColor = [UIColor redColor];
+    }
+    return self;
+}
+
+- (void)drawRect:(CGRect)rect{
+    [super drawRect:rect];
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSetRGBStrokeColor(ctx,0., 0., 0.,1.0);
+    CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+    CGContextBeginPath(ctx);
+    CGContextSetLineWidth(ctx, 0.1);
+    CGContextMoveToPoint(ctx, 0, self.frame.size.height);
+    CGContextAddLineToPoint(ctx, rect.size.width-0.1, self.frame.size.height);
+    CGContextAddLineToPoint(ctx, rect.size.width-0.1, 0);
+     CGContextStrokePath(ctx);
+}
+
+@end
+
+@implementation PublishTableCellBackView
+
+- (void)drawRect:(CGRect)rect{
+    [super drawRect:rect];
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSetRGBStrokeColor(ctx,0.5, 0.5, 0.5,1.);
+    CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+    CGContextBeginPath(ctx);
+    CGContextSetLineWidth(ctx, 0.1);
+    CGContextMoveToPoint(ctx, 0, 0);
+    CGContextAddLineToPoint(ctx, rect.size.width, 0);
+    CGContextMoveToPoint(ctx, 0, rect.size.height);
+    CGContextAddLineToPoint(ctx, rect.size.width, rect.size.height);
+    CGContextStrokePath(ctx);
+}
+
+@end
+
+#pragma mark 自定义CollectionView
+@implementation PublishCollectionCell
+
+- (instancetype)initWithFrame:(CGRect)frame{
+    self = [super initWithFrame:frame];
+    if (self) {
+        _imageView = [[UIImageView alloc]initWithFrame:CGRectMake(20, 10, frame.size.width-40, frame.size.height-40)];
+        [self addSubview:_imageView];
+        _nameLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(_imageView.frame), frame.size.width, 20)];
+        _nameLabel.numberOfLines = 0;
+        _nameLabel.textColor = HEXCOLOR(0x303030);
+        _nameLabel.font = [UIFont systemFontOfSize:12.];
+        _nameLabel.textAlignment = NSTextAlignmentCenter;
+        [self addSubview:_nameLabel];
+    }
+    return self;
+}
+
+@end
+
+@implementation PublishLayoutAttributes
+
+
+@end
+
+@implementation PublishHeadReusableView
+
+- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes{
+    [super applyLayoutAttributes:layoutAttributes];
+    _adView = [[UIImageView alloc]init];
+    [self addSubview:_adView];
+    self.sectionTitle = [[UILabel alloc]init];
+    [self addSubview:self.sectionTitle];
+    self.sectionTitle.font = [UIFont boldSystemFontOfSize:12.];
+    self.sectionTitle.textColor = HEXCOLOR(0x101010);
+    self.sectionTitle.textAlignment = NSTextAlignmentLeft;
+}
+
+@end
+
+@implementation PublishDecorationReusableView
+
+- (instancetype)initWithFrame:(CGRect)frame{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+    }
+    return self;
+}
+
+@end
+
+@implementation PublishFlowLayout
+
+- (void)prepareLayout{
+    [super prepareLayout];
+    self.minimumInteritemSpacing = 0.;
+    [self registerClass:[PublishDecorationReusableView class] forDecorationViewOfKind:[PublishDecorationReusableView description]];
+}
+
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds{
+    return YES;
+}
+
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect{
+    NSMutableArray* attributes = [NSMutableArray array];
+    for (int y=0; y<2; y++) {
+        NSIndexPath* indexPath = [NSIndexPath indexPathForItem:2 inSection:y];
+        [attributes addObject:[self layoutAttributesForDecorationViewOfKind:[PublishDecorationReusableView description] atIndexPath:indexPath]];
+    }
+    for (int y=0; y<2; y++) {
+        NSIndexPath* indexPath = [NSIndexPath indexPathForItem:2 inSection:y];
+        [attributes addObject:[self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:indexPath]];
+    }
+    for (NSInteger i=0 ; i < 2; i++) {
+        for (NSInteger t=0; t<9; t++) {
+            NSIndexPath* indexPath = [NSIndexPath indexPathForItem:t inSection:i];
+            [attributes addObject:[self layoutAttributesForItemAtIndexPath:indexPath]];
+        }
+    }
+    return attributes;
+}
+
+#pragma mark collectView Head布局
+- (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath{
+    UICollectionViewLayoutAttributes* att = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:elementKind withIndexPath:indexPath];
+    if (indexPath.section == 0) {
+        att.frame=CGRectMake(0, self.sectionHeight*indexPath.section,self.sectionWidth , 125);
+    }else{
+        att.frame=CGRectMake(0, 125+self.sectionHeight*indexPath.section, self.sectionWidth, 30);
+    }
+    return att;
+}
+
+#pragma mark collectView Decoration布局
+- (UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString*)elementKind atIndexPath:(NSIndexPath *)indexPath{
+    UICollectionViewLayoutAttributes* att = [UICollectionViewLayoutAttributes layoutAttributesForDecorationViewOfKind:elementKind withIndexPath:indexPath];
+    if (indexPath.section == 0) {
+        att.frame=CGRectMake(0, 125,self.sectionWidth , self.sectionHeight);
+    }else{
+        att.frame=CGRectMake(0, 125+self.sectionHeight*indexPath.section+30, self.sectionWidth, self.sectionHeight);
+    }
+    att.zIndex=-1;
+    return att;
+}
+
+@end
