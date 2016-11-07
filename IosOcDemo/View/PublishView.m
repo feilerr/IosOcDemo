@@ -98,17 +98,38 @@
                         subitem.name = @"平板电脑";
                         break;
                     case 1:
-                        subitem.name = @"精品女装";
+                        subitem.name = @"平板电视";
                         break;
                     case 2:
-                        subitem.name = @"时尚羽绒";
+                        subitem.name = @"联想电脑";
+                        break;
+                    case 3:
+                        subitem.name = @"精品女装";
+                        break;
+                    case 4:
+                        subitem.name = @"床上用品";
+                        break;
+                    case 5:
+                        subitem.name = @"皮鞋";
+                        break;
+                    case 6:
+                        subitem.name = @"雨伞雨具";
+                        break;
+                    case 7:
+                        subitem.name = @"跑步鞋";
+                        break;
+                    case 8:
+                        subitem.name = @"苹果手机";
+                        break;
+                    case 9:
+                        subitem.name = @"中西药品";
                         break;
                     default:
-                        subitem.name = @"平板电脑";
+                        subitem.name = @"推荐商品";
                         break;
                 }
                 
-                subitem.imageName = @"tabletpc.jpg";
+                subitem.imageName = [NSString stringWithFormat:@"ad%d%d%d.jpg",i,i,i];
                 [item.items addObject:subitem];
             }
             [list addObject:item];
@@ -138,7 +159,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
-    _leftTableCurRow = indexPath.row;
+    _leftTableCurRow = (int)indexPath.row;
     publishLayout.sectionWidth = self.frame.size.width-leftTableWidth-20;
     publishLayout.sectionHeight = self.frame.size.width-106.+publishLayout.minimumLineSpacing*2;
     [_rightView reloadData];
@@ -181,12 +202,12 @@
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
     PublishHeadReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:
                                             UICollectionElementKindSectionHeader withReuseIdentifier:[PublishHeadReusableView description] forIndexPath:indexPath];
-    headerView.frame = CGRectMake(headerView.frame.origin.x, headerView.frame.origin.y, collectionView.frame.size.width-10, headerView.frame.size.height);
     if (indexPath.section == 0) {
-        headerView.adView.image = [UIImage imageNamed:@"ad0.jpg"];
+        headerView.adView.image = [UIImage imageNamed:[NSString stringWithFormat:@"ad%d.jpg" ,_leftTableCurRow]];
         headerView.adView.frame = CGRectMake(0, 15, CGRectGetWidth(collectionView.frame)-10, 80);
         headerView.sectionTitle.frame = CGRectMake(0, CGRectGetMaxY(headerView.adView.frame), 120, 30);
     }else{
+        headerView.adView.frame = CGRectZero;
        headerView.sectionTitle.frame = CGRectMake(0, 0, 120, 30);
     }
     NSMutableArray *list = [categoryData objectForKey:[category objectAtIndex:_leftTableCurRow]];

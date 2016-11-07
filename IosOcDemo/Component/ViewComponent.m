@@ -187,15 +187,23 @@
 
 @implementation PublishHeadReusableView
 
+- (instancetype)initWithFrame:(CGRect)frame{
+    self = [super initWithFrame:frame];
+    if (self) {
+        _adView = [[UIImageView alloc]init];
+        [self addSubview:_adView];
+        self.sectionTitle = [[UILabel alloc]init];
+        [self addSubview:self.sectionTitle];
+        self.sectionTitle.font = [UIFont boldSystemFontOfSize:12.];
+        self.sectionTitle.textColor = HEXCOLOR(0x101010);
+        self.sectionTitle.textAlignment = NSTextAlignmentLeft;
+    }
+    return self;
+}
+
 - (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes{
     [super applyLayoutAttributes:layoutAttributes];
-    _adView = [[UIImageView alloc]init];
-    [self addSubview:_adView];
-    self.sectionTitle = [[UILabel alloc]init];
-    [self addSubview:self.sectionTitle];
-    self.sectionTitle.font = [UIFont boldSystemFontOfSize:12.];
-    self.sectionTitle.textColor = HEXCOLOR(0x101010);
-    self.sectionTitle.textAlignment = NSTextAlignmentLeft;
+    
 }
 
 @end
