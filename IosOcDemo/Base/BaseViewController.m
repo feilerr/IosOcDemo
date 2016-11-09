@@ -37,9 +37,6 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    if ([view respondsToSelector:@selector(refresh)]) {
-        [view refresh];
-    }
 }
 
 - (void)viewDidAppear:(BOOL)animated{

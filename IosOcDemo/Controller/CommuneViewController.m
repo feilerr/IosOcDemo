@@ -18,6 +18,16 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.title = @"交流";
+    UIButton *btn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 36, 25)];
+    [btn setImage:[UIImage imageNamed:@"ic_switch_camera"] forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(rightBarButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc]initWithCustomView:btn];
+    self.navigationItem.rightBarButtonItem = buttonItem;
+}
+
+- (void)rightBarButtonClick:(id)sender{
+    BaseView *baseView = (BaseView *)self.view;
+    [baseView refresh];
 }
 
 - (void)didReceiveMemoryWarning {
