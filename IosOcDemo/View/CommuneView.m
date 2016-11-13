@@ -7,6 +7,7 @@
 //
 
 #import "CommuneView.h"
+#import "PlayVideoViewController.h"
 
 #define VIDEO_FILE @"test.mov"
 
@@ -44,8 +45,6 @@
         [self.captureSession addOutput:stillImageOutput];
     }
     
-   
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.captureSession];
         self.previewLayer.frame = CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-50);
@@ -57,6 +56,10 @@
         
         outputLayer = [CALayer layer];
         outputLayer.frame = CGRectMake(0, 40, 128, 85);
+        outputLayer.borderWidth = 4;
+        outputLayer.borderColor = HEXCOLOR(0xf6e0c9).CGColor;
+        outputLayer.cornerRadius = 4;
+        outputLayer.masksToBounds = YES;
         outputLayer.backgroundColor = [UIColor redColor].CGColor;
         outputLayer.affineTransform = CGAffineTransformMakeRotation(M_PI/2);
         [rootLayer insertSublayer:outputLayer atIndex:1];
@@ -73,17 +76,26 @@
         make.height.mas_equalTo(50);
     }];
     
+    [_captureSession startRunning];
+}
+
+- (void)viewWillAppear{
     //加入视频输出
     [self RVC];
-    
-     [_captureSession startRunning];
 }
 
 #pragma mark 实时视频输出
 - (void)RVC{
+    if (self.captureOutput) {
+        [self.captureSession removeOutput:self.captureOutput];
+        self.captureOutput = nil;
+    }
     AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc]init];
-    [self.captureSession addOutput:output];
-    
+    if ([self.captureSession canAddOutput:output]) {
+        [self.captureSession addOutput:output];
+    }else{
+        return;
+    }
     dispatch_queue_t queue = dispatch_queue_create("rvc", NULL);
     [output setSampleBufferDelegate:self queue:queue];
     
@@ -153,7 +165,7 @@
         }
         // Delete the old movie file if it exists
         [[NSFileManager defaultManager] removeItemAtURL:[self outputURL] error:nil];
-        [self.captureSession startRunning];
+//        [self.captureSession startRunning];
         AVCaptureConnection *videoConnection = [self connectionWithMediaType:AVMediaTypeVideo fromConnections:self.captureOutput.connections];
         
         if ([videoConnection isVideoOrientationSupported]) {
@@ -208,7 +220,9 @@
         if (status == AVKeyValueStatusLoaded) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 //播放记录视频
-                NSLog(@"播放记录");
+                PlayVideoViewController *controller = [[PlayVideoViewController alloc]init];
+                controller.asset = asset;
+                [self.controller.navigationController pushViewController:controller animated:YES];
             });
         }
     }];

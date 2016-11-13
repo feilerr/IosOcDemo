@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "BaseView.h"
 
+typedef NSString *(^AddNum)(int a,int b);
+
 @interface HomeView : BaseView
+
+- (NSString *)getComputer:(AddNum)addNum;
 
 @end

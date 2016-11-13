@@ -10,6 +10,7 @@
 #import "BaseView.h"
 #import <AVFoundation/AVFoundation.h>
 #import <CoreVideo/CoreVideo.h>
+#import "PlayVideoView.h"
 
 @interface CommuneView : BaseView<AVCaptureFileOutputRecordingDelegate,AVCaptureVideoDataOutputSampleBufferDelegate>{
     CALayer *outputLayer;

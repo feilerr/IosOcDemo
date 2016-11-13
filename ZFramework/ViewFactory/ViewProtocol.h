@@ -17,12 +17,15 @@
 
 @optional
 - (void)loadDefault;
-
+- (void)viewDeallocate;
 @end
 
 @protocol ViewOfControllerProtocol <ViewDefaultProtocol>
 
 @property (nonatomic, weak) UIViewController *controller;
+
+@optional
+- (void)viewWillAppear;
 
 @end
 

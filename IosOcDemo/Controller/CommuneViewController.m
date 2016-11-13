@@ -30,6 +30,12 @@
     [baseView refresh];
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    BaseView *baseView = (BaseView *)self.view;
+    [baseView viewWillAppear];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

@@ -275,3 +275,125 @@
 }
 
 @end
+
+#pragma mark 播放组件
+@implementation PlayView
+
++ (Class)layerClass {
+    return [AVPlayerLayer class];
+}
+
+- (id)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor blackColor];
+//        self.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    }
+    return self;
+}
+
+- (AVPlayer *)player {
+    return [(AVPlayerLayer *)[self layer] player];
+}
+
+- (void)setPlayer:(AVPlayer *)player {
+    [(AVPlayerLayer *)[self layer] setPlayer:player];
+}
+
+@end
+
+@implementation PlayTransportView
+
+- (void)loadDefault{
+    UIImageView *backview = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    backview.image = [UIImage imageNamed:@"tp_transport_base"];
+    backview.userInteractionEnabled = YES;
+    [self addSubview:backview];
+    
+    _playButton = [[UIButton alloc]initWithFrame:CGRectMake(15, 20, 19, 21)];
+    [_playButton setImage:[UIImage imageNamed:@"tp_play_button"] forState:UIControlStateNormal];
+    [backview addSubview:_playButton];
+    
+    _pauseButton = [[UIButton alloc]initWithFrame:CGRectMake(15, 20, 19, 21)];
+    [_pauseButton setImage:[UIImage imageNamed:@"tp_pause_button"] forState:UIControlStateNormal];
+    [backview addSubview:_pauseButton];
+    _pauseButton.hidden = YES;
+    
+    _currentTimeLabel = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_playButton.frame), CGRectGetMinY(_playButton.frame), 60, CGRectGetHeight(_playButton.frame) )];
+    [backview addSubview:_currentTimeLabel];
+    _currentTimeLabel.textColor = [UIColor whiteColor];
+    _currentTimeLabel.font = [UIFont boldSystemFontOfSize:12.];
+    _currentTimeLabel.textAlignment = NSTextAlignmentCenter;
+    
+    _scrubberSlider = [[UISlider alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_currentTimeLabel.frame), CGRectGetMinY(_playButton.frame), 160, CGRectGetHeight(_playButton.frame))];
+    [backview addSubview:_scrubberSlider];
+    
+    _remainingTimeLabel = [[UILabel alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_scrubberSlider.frame), CGRectGetMinY(_playButton.frame), 60, CGRectGetHeight(_playButton.frame) )];
+    [backview addSubview:_remainingTimeLabel];
+    _remainingTimeLabel.textColor = [UIColor whiteColor];
+    _remainingTimeLabel.font = [UIFont boldSystemFontOfSize:12.];
+    _remainingTimeLabel.textAlignment = NSTextAlignmentCenter;
+    
+    self.scrubberSlider.value = 0.0f;
+    
+    self.layer.shadowOpacity = 0.5f;
+    self.layer.shadowOffset = CGSizeMake(0, 2);
+    self.layer.shadowRadius = 10.0f;
+    self.layer.shadowColor = [UIColor colorWithWhite:0.200 alpha:1.000].CGColor;
+    
+    UIEdgeInsets trackImageInsets = UIEdgeInsetsMake(0, 8, 0, 8);
+    
+    UIImage *thumbNormalImage = [UIImage imageNamed:@"tp_scrubber_knob"];
+    UIImage *thumbHighlightedImage = [UIImage imageNamed:@"tp_scrubber_knob_highlighted"];
+    UIImage *maxTrackImage = [[UIImage imageNamed:@"tp_track_flex"] resizableImageWithCapInsets:trackImageInsets];
+    UIImage *minTrackImage = [[UIImage imageNamed:@"tp_track_highlight_flex"] resizableImageWithCapInsets:trackImageInsets];
+    
+    // Customize slider appearance
+    [self.scrubberSlider setMaximumTrackImage:maxTrackImage forState:UIControlStateNormal];
+    [self.scrubberSlider setMinimumTrackImage:minTrackImage forState:UIControlStateNormal];
+    [self.scrubberSlider setThumbImage:thumbNormalImage forState:UIControlStateNormal];
+    [self.scrubberSlider setThumbImage:thumbHighlightedImage forState:UIControlStateHighlighted];
+    
+    self.infoView.hidden = YES;
+    
+    [self.infoView sizeToFit];
+    self.infoViewOffset = CGRectGetWidth(self.infoView.frame) / 2;
+    CGRect trackRect = [self.scrubberSlider trackRectForBounds:self.scrubberSlider.bounds];
+    self.sliderOffset = self.scrubberSlider.frame.origin.x + trackRect.origin.x + 10;
+    
+    // Set up actions
+    [self.scrubberSlider addTarget:self action:@selector(showPopupUI) forControlEvents:UIControlEventValueChanged];
+    [self.scrubberSlider addTarget:self action:@selector(hidePopupUI) forControlEvents:UIControlEventTouchUpInside];
+    [self.scrubberSlider addTarget:self action:@selector(unhidePopupUI) forControlEvents:UIControlEventTouchDown];
+}
+
+- (void)showPopupUI {
+    self.infoView.hidden = NO;
+    CGRect trackRect = [self.scrubberSlider trackRectForBounds:self.scrubberSlider.bounds];
+    CGRect thumbRect = [self.scrubberSlider thumbRectForBounds:self.scrubberSlider.bounds trackRect:trackRect value:self.scrubberSlider.value];
+    
+    CGRect rect = self.infoView.frame;
+    // The +1 is a fudge factor due to the scrubber knob being larger than normal
+    rect.origin.x = (self.sliderOffset + thumbRect.origin.x + 1) - self.infoViewOffset;
+    self.infoView.frame = rect;
+}
+
+- (void)unhidePopupUI {
+    self.infoView.hidden = NO;
+    self.infoView.alpha = 0.0f;
+    [UIView animateWithDuration:0.2f animations:^{
+        self.infoView.alpha = 1.0f;
+    }                completion:^(BOOL complete) {
+    }];
+}
+
+- (void)hidePopupUI {
+    [UIView animateWithDuration:0.3f animations:^{
+        self.infoView.alpha = 0.0f;
+    }                completion:^(BOOL complete) {
+        self.infoView.alpha = 1.0f;
+        self.infoView.hidden = YES;
+    }];
+}
+
+@end

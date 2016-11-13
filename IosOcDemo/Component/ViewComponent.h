@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreText/CoreText.h>
 #import "ViewProtocol.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface QLTabBarItem : UITabBarItem<ViewCreateProtocol>{
     NSString *countStr;
@@ -64,5 +65,26 @@
 @property (nonatomic, assign) CGFloat sectionWidth;
 @property (nonatomic, assign) CGFloat sectionHeight;
 
+
+@end
+
+@interface PlayView : UIView
+
+@property (nonatomic, strong) AVPlayer *player;
+
+@end
+
+@interface PlayTransportView  : UIView<ViewDefaultProtocol>
+
+@property (nonatomic, strong) UILabel *currentTimeLabel;
+@property (nonatomic, strong) UILabel *remainingTimeLabel;
+@property (nonatomic, strong) UIButton *playButton;
+@property (nonatomic, strong) UIButton *pauseButton;
+@property (nonatomic, strong) UISlider *scrubberSlider;
+@property (nonatomic, strong) UIView *infoView;
+@property (nonatomic, strong) UILabel *scrubbingTimeLabel;
+
+@property (nonatomic, assign) CGFloat sliderOffset;
+@property (nonatomic, assign) CGFloat infoViewOffset;
 
 @end
