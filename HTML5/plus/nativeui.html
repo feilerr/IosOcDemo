@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+function pickDate() {
+	outSet( "打开系统日期选择框：");
+	var dDate=new Date();
+	dDate.setFullYear(2014,0,1);
+	var minDate=new Date();
+	minDate.setFullYear(2010,0,1);
+	var maxDate=new Date();
+	maxDate.setFullYear(2016,11,31);
+	outLine( "[date] "+dDate );
+	outLine( "[minDate] "+minDate );
+	outLine( "[maxDate] "+maxDate );
+	/*pickDate:弹出系统日期选择对话框
+    void plus.nativeUI.pickDate( successCB, errorCB, options );
+    successCB:event: ( Event ) 必选 用户完成选择日期或时间后返回的数据.可通过event.date（Date类型）
+        获取选择的日期或时间值。 若调用的是日期选择操作则仅年、月、日信息有效，若调用的是时间选择操作则仅时、分信息有效。
+	
+	PickDateOption:JSON对象，日期选择对话框的参数
+        属性：title: (String 类型 )日期选择对话框显示的标题
+    date: (Date 类型 )日期选择对话框默认显示的日期.如果未设置默认显示的日期，则显示当前的日期
+    minDate: (Date 类型 )日期选择对话框可选择的最小日期.Date类型对象，如果未设置可选择的最小日期，则使用系统默认可选择的最小日期值。
+    maxDate: (Date 类型 )日期选择对话框可选择的最大日期.Date类型对象，如果未设置可选择的最大日期，则使用系统默认可选择的最大日期值。 其值必须大于minDate设置的值，否则使用系统默认可选择的最大日期值。
+    popover: (JSON 类型 )时间选择对话框弹出指示区域.JSON类型对象，格式如{top:10;left:10;width:200;height:200;}，所有值为像素值，其值为相对于容器Webview的位置。 如未设置此值，默认在屏幕居中显示。仅在iPad上有效，其它设备忽略此值。*/
+	plus.nativeUI.pickDate( function(e) {
+		var d=e.date;
+		outLine( "选择的日期："+d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate() );
+	},function(e){
+		outSet( "未选择日期："+e.message );
+	},{title:"请选择日期",date:dDate,minDate:minDate,maxDate:maxDate});
+}
+function pickTime() {
+	outSet( "打开系统时间选择框：");
+	var dTime=new Date();
+	dTime.setHours(6,0);
+	outLine( "[time] "+dTime );
+/*	pickTime:弹出系统时间选择对话框
+    void plus.nativeUI.pickTime( successCB, errorCB, options );
+    successCB:event: ( Event ) 必选 用户完成选择日期或时间后返回的数据.可通过event.date（Date类型）获取选择的日期或时间值。 若调用的是日期选择操作则仅年、月、日信息有效，若调用的是时间选择操作则仅时、分信息有效。
+	
+	PickTimeOption:JSON对象，时间选择对话框的参数
+        属性：time: (Date 类型 )时间选择对话框默认显示的时间.如果未设置标题，则默认显示标题为当前选择的时间。			
+	title: (String 类型 )时间选择对话框显示的标题.如果未设置标题，则默认显示标题为当前选择的时间。
+	is24Hour: (Boolean 类型 )是否24小时制模式.true表示使用24小时制模式显示，fale表示使用12小时制模式显示，默认值为true。
+	popover: (JSON 类型 )日期选择对话框弹出指示区域.JSON类型对象，格式如{top:10;left:10;width:200;height:200;}，所有值为像素值，其值相对于容器webview的位置。 如未设置此值，默认在屏幕居中显示。仅在iPad上有效，其它设备忽略此值。
+	*/
+	plus.nativeUI.pickTime(function(e){
+		var d=e.date;
+		outLine( "选择的时间："+d.getHours()+":"+d.getMinutes() );
+	},function (e){
+		outSet( "取消选择时间！" );
+	},{title:"请选择时间",is24Hour:true,time:dTime});
+}
+function showAlert(){
+	outSet( "弹出系统提示对话框：" );
+/*	alert:弹出系统提示对话框
+    void plus.nativeUI.alert( message, alertCB, title, buttonCapture );
+	说明：创建并显示系统样式提示对话框，可设置提示对话框的标题、内容、按钮文字等。 弹出的提示对话框为非阻塞模式，用户点击提示对话框上的按钮后关闭，并通过alertCB回调函数通知对话框已关闭。
+	message: ( String ) 必选 提示对话框上显示的内容
+    alertCB: ( AlertCallback ) 可选 提示对话框上关闭后的回调函数
+    title: ( String ) 可选 提示对话框上显示的标题
+    buttonCapture: ( String ) 必选 提示对话框上按钮显示的内容*/
+	plus.nativeUI.alert("请注意！\n我是系统提示框",function(e){
+		var i=e.index;
+		if(i<0){
+			outLine( "按\"返回\"键关闭提示框！" );
+		}else{
+			outLine( "提示框已关闭！" );	
+		}
+	},"nativeUI","好");
+}
+function showConfirm(){
+	outSet( "弹出系统确认对话框：" );
+/*	confirm:弹出系统确认对话框
+    void plus.nativeUI.confirm( message, confirmCB, title, buttons );
+	说明：创建并显示系统样式确认对话框，可设置确认对话框的标题、内容、按钮数目及其文字。 弹出的确认对话框为非阻塞模式，用户点击确认对话框上的按钮后关闭，并通过confirmCB回调函数通知用户点击的按钮索引值。
+    message: ( String ) 必选 确认对话框上显示的内容
+    confirmCB: ( ConfirmCallback ) 可选 确认对话框关闭后的回调函数.回调函数中包括Event参数，可通过其index属性（Number类型）获取用户点击按钮的索引值。
+    title: ( String ) 可选 确认对话框上显示的标题
+    buttons: ( Array[ String ] ) 可选 确认对话框上显示的按钮.字符串数组，每项对应在确认对话框上显示一个按钮，用户点击后通过confirmCB返回用户点击按钮的在数组中的索引值。
+	*/
+	var bts=["是","否","取消"];
+	plus.nativeUI.confirm("请确认是否弹出系统框？",function(e){
+		var i=e.index;
+		outLine( "按\""+((i>=0)?bts[e.index]:"返回")+"\"关闭！" );
+	},"nativeUI",bts);
+}
+function showPrompt(){
+	outSet( "弹出系统输入对话框：" );
+	var bts=["确认","取消"];
+/*	prompt:弹出系统输入对话框
+    void plus.nativeUI.prompt( message, promptCB, title, tip, buttons );
+    说明：创建并显示系统样式输入对话框，可设置输入对话框的标题、内容、提示输入信息、按钮数目及其文字。 弹出的输入对话框为非阻塞模式，其中包含编辑框供用户输入内容，用户点击输入对话框上的按钮后自动关闭，并通过promptCB回调函数返回用户点击的按钮及输入的内容。
+    message: ( String ) 必选 输入对话框上显示的内容
+    promptCB: ( PromptCallback ) 可选 关闭输入对话框的回调函数.回调函数中包括Event参数，可通过其index属性（Number类型）获取用户点击按钮的索引值，通过其value属性（String类型）获取用户输入的内容。
+    title: ( String ) 可选 输入对话框上显示的标题
+    tip: ( String ) 可选 输入对话框上编辑框显示的提示文字
+    buttons: ( Array[ String ] ) 可选 输入对话框上显示的按钮数组*/
+	plus.nativeUI.prompt("请输入你的姓名",function(e){
+		var i=e.index;
+		outLine( "按\""+((i>=0)?bts[e.index]:"返回")+"\"关闭："+e.value );
+	},"nativeUI","姓名",bts);
+}
+function showActionSheet(){
+	// 弹出系统选择按钮框
+/*	actionSheet:弹出系统选择按钮框
+    void plus.nativeUI.actionSheet( actionsheetStyle, actionsheetCallback );
+	说明：从底部动画弹出系统样式选择按钮框，可设置选择框的标题、按钮文字等。 弹出的提示框为非阻塞模式，用户点击选择框上的按钮后关闭，并通过actionsheetCallback回调函数通知用户选择的按钮。
+	actionsheetStyle: ( ActionSheetStyle ) 必选 选择按钮框显示的样式
+	actionsheetCallback: ( ActionSheetCallback ) 可选 选择按钮框关闭后的回调函数
+	
+	ActionSheetStyle:JSON对象，原生选择按钮框的样式参数
+        属性：   title: (String 类型 )选择按钮框的标题
+          cancel: (String 类型 )取消按钮上显示的文字内容.不设置此属性，则不显示取消按钮。
+          buttons: (Array[ ActionButtonStyle ] 类型 )选择框上的按钮，ActionButtonStyle对象数组
+    
+    ActionButtonStyle:JSON对象，原生选择按钮框上按钮的样式参数
+        属性：title: (String 类型 )按钮上显示的文字内容
+         style: (String 类型 )按钮的样式，可取值“destructive”、“default”,“destructive”表示警示按钮样式、“default”表示默认按钮样式，默认为“default”。
+	*/
+	var actionbuttons=[{title:"不同意",style:"destructive"},{title:"1"},{title:"2"},{title:"3"}];
+	var actionstyle={title:"Plus is ready!",cancel:"取消",buttons:actionbuttons};
+	plus.nativeUI.actionSheet(actionstyle, function(e){
+		console.log( "User pressed: "+e.index );
+	} );
+}
+function showToast(){
+/*	toast:显示自动消失的提示消息
+    void plus.nativeUI.toast( message, options );
+	说明：创建并显示系统样式提示消息，弹出的提示消息为非阻塞模式，显示指定时间后自动消失。 提示消息显示时间可通过options的duration属性控制，长时间提示消息显示时间约为3.5s，短时间提示消息显示时间约为2s。
+    message: ( String ) 必选 提示消息上显示的文字内容
+    options: ( ToastOption ) 可选 提示消息的参数.可设置提示消息显示的图标、持续时间、位置等。
+   
+   ToastOption:JSON对象，系统提示消息框要设置的参数
+        属性：icon: (String 类型 )提示消息框上显示的图标
+    duration: (String 类型 )提示消息框显示的时间.可选值为"long"、"short"，值为"long"时显示时间约为3.5s，值为"short"时显示时间约为2s，未设置时默认值为"short"。
+    align: (String 类型 )提示消息框在屏幕中的水平位置.可选值为"left"、"center"、"right"，分别为水平居左、居中、居右，未设置时默认值为"center"。
+    verticalAlign: (String 类型 )提示消息在屏幕中的垂直位置.可选值为"top"、"center"、"bottom"，分别为垂直居顶、居中、居底，未设置时默认值为"bottom"。
+	*/
+	plus.nativeUI.toast("您好！正在使用HBuilder开发应用！",{duration:"long"});
+}
+function showWaiting(){
+	var nw = clicked('nativeui_waiting.html',false,false,{popGesture:'none'});
+/*	closeWaiting:关闭系统等待对话框
+    void plus.nativeUI.closeWaiting();
+	说明：关闭已经显示的所有系统样式等待对话框，触发Waiting对象的onclose事件。*/
+	nw.addEventListener("close",function(){
+		plus.nativeUI.closeWaiting();
+	},false);
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">nativeUI</div>
+			<div class="nvbt idoc" onclick="openDoc('NativeUI Document','/doc/nativeUI.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<ul class="dlist">
+				<li class="ditem" onclick="pickDate()">系统日期选择框</li>
+				<li class="ditem" onclick="pickTime()">系统时间选择框</li>
+				<li class="ditem" onclick="showAlert()">提示框</li>
+				<li class="ditem" onclick="showConfirm()">确认框</li>
+				<li class="ditem" onclick="showPrompt()">输入框</li>
+				<li class="ditem" onclick="showActionSheet()">弹出菜单ActionSheet</li>
+				<li class="ditem" onclick="showToast()">自动消失提示框</li>
+			</ul>
+			<br/>
+			<div class="button" onclick="showWaiting()">等待框</div>
+		</div>
+		<div id="output">
+nativeUI管理系统原生界面，可用于弹出系统原生提示对话框窗口、时间日期选择对话框、等待对话框等。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

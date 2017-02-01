@@ -12,5 +12,6 @@
 
 @interface UserViewController : BaseViewController
 
+@property (nonatomic,strong) UIWebView *webView;
 
 @end

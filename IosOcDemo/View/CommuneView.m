@@ -60,7 +60,6 @@
         outputLayer.borderColor = HEXCOLOR(0xf6e0c9).CGColor;
         outputLayer.cornerRadius = 4;
         outputLayer.masksToBounds = YES;
-        outputLayer.backgroundColor = [UIColor redColor].CGColor;
         outputLayer.affineTransform = CGAffineTransformMakeRotation(M_PI/2);
         [rootLayer insertSublayer:outputLayer atIndex:1];
     });

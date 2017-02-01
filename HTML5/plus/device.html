@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+function getDeviceInfo(){
+/*model: 设备的型号
+vendor: 设备的生产厂商
+imei: 设备的国际移动设备身份码
+uuid: 设备的唯一标识
+imsi: 设备的国际移动用户识别码。字符串数组类型，获取设备上插入SIM的国际移动设备身份码。 如果设备支持多卡模式则返回所有SIM身份码。 如果设备不支持或没有插入SIM卡则返回空数组。
+*/
+    var str = "",i;
+    str += "设备型号：" + plus.device.model + "\n";
+    str += "设备厂商：" + plus.device.vendor + "\n";
+    str += "IMEI：" + plus.device.imei + "\n";
+    str += "UUID: " + plus.device.uuid + "\n";
+    str += "IMSI：";
+    for ( i=0; i<plus.device.imsi.length; i++ ) {
+        str += plus.device.imsi[i];
+    }
+/*screen:管理设备屏幕信息
+属性：
+resolutionHeight: 设备屏幕高度分辨率
+resolutionWidth: 设备屏幕宽度分辨率
+scale: 逻辑分辨率与实际分辨率的比例
+dpiX: 设备屏幕水平方向的密度
+dpiY: 设备屏幕垂直方向的密度*/
+    str += "\n";
+    str += "屏幕分辨率：" + plus.screen.resolutionWidth*plus.screen.scale + " x " + plus.screen.resolutionHeight*plus.screen.scale + "\n";
+    str += "DPI：" + plus.screen.dpiX + " x " + plus.screen.dpiY;
+    outSet( str );
+}
+function getSysInfo() {
+/*OS模块管理操作系统信息
+属性：
+language: 系统语言信息
+version: 系统版本信息
+name: 系统的名称
+vendor: 系统的供应商信息*/
+    var str = "";
+    str += "名称：" + plus.os.name + "\n";
+    str += "版本：" + plus.os.version + "\n";
+    str += "语言：" + plus.os.language + "\n";
+    str += "厂商：" + plus.os.vendor + "\n";
+/*Device模块用于获取网络信息
+常量：
+CONNECTION_UNKNOW: 网络连接状态未知
+CONNECTION_NONE: 未连接网络
+CONNECTION_ETHERNET: 有线网络
+CONNECTION_WIFI: 无线WIFI网络
+CONNECTION_CELL2G: 蜂窝移动2G网络
+CONNECTION_CELL3G: 蜂窝移动3G网络
+CONNECTION_CELL4G: 蜂窝移动4G网络
+方法：
+getCurrentType: 获取设备当前连接的网络类型
+plus.networkinfo.getCurrentType();
+说明：获取当前设备连接的网络类型，返回值为网络类型常量，可取值CONNECTION_*常量。
+返回值：Number : 设备当前网络类型*/
+    str += "网络类型：";
+    var types = {};//types对象，与new object()相同
+    types[plus.networkinfo.CONNECTION_UNKNOW] = "未知";
+    types[plus.networkinfo.CONNECTION_NONE] = "未连接网络";
+    types[plus.networkinfo.CONNECTION_ETHERNET] = "有线网络";
+    types[plus.networkinfo.CONNECTION_WIFI] = "WiFi网络";
+    types[plus.networkinfo.CONNECTION_CELL2G] = "2G蜂窝网络";
+    types[plus.networkinfo.CONNECTION_CELL3G] = "3G蜂窝网络";
+    types[plus.networkinfo.CONNECTION_CELL4G] = "4G蜂窝网络";
+    str += types[plus.networkinfo.getCurrentType()];
+    outSet( str );
+}
+function deviceBeep() {
+/*beep:发出蜂鸣声
+void plus.device.beep( times );				
+说明：调用此方法使得设备发出蜂鸣声。
+参数：times: ( Number ) 可选 蜂鸣声重复的次数，默认发出一次蜂鸣声*/
+    var str = "";
+    switch ( plus.os.name ) {
+    	case "iOS":
+		    if ( plus.device.model.indexOf("iPhone") >= 0 ) {
+                plus.device.beep();
+		        str += "设备蜂鸣中...";
+		    } else {
+		        str += "此设备不支持蜂鸣";
+		    }
+    	break;
+    	default:
+    		plus.device.beep();
+    		str += "设备蜂鸣中...";
+    	break;
+    }
+	outSet( str );
+}
+function deviceVibrate() {
+/*vibrate设备振动
+plus.device.vibrate( milliseconds );				
+说明：调用此方法使得设备振动。
+参数：milliseconds: ( Number ) 必选 设备振动持续的时间.数值类型，单位为ms，默认为500ms。*/
+    var str = "";
+    switch ( plus.os.name ) {
+    	case "iOS":
+            if ( plus.device.model.indexOf("iPhone") >= 0 ) {
+                plus.device.vibrate();
+                str += "设备振动中...";
+            } else {
+                str += "此设备不支持振动";
+            }
+    	break;
+    	default:
+    		plus.device.vibrate();
+            str += "设备振动中...";
+    	break;
+    }
+	outSet( str );
+}
+function dial(){
+/*dial拨打电话
+void plus.device.dial( number, confirm );				
+说明：调用系统程序拨打电话。
+参数：
+number: ( String ) 必选 要拨打的电话号码
+confirm: ( Boolean ) 可选 是否需要用户确认后开始拨打电话.设置为true表示打开系统拨打电话界面，需用户点击拨号按钮后才开始拨打电话，false则无需确认直接拨打电话，默认值为true。*/
+	plus.device.dial("10086",false);
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Device</div>
+			<div class="nvbt idoc" onclick="openDoc('Device Document','/doc/device.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<ul class="dlist">
+				<li class="ditem" onclick="getDeviceInfo();">获取设备信息</li>
+				<li class="ditem" onclick="getSysInfo();">获取系统信息</li>
+				<li class="ditem" onclick="deviceBeep();">蜂鸣</li>
+				<li class="ditem" onclick="deviceVibrate();">震动</li>
+				<li class="ditem" onclick="dial();">直接拨打电话</li>
+			</ul>
+		</div>
+		<div id="output">
+Device可获取手机设备相关信息，包括硬件、软件、网络等信息。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

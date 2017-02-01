@@ -29,7 +29,6 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-
 }
 
 @end
@@ -128,16 +127,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #if TARGET_OS_IOS
         // Subscribe to app events
+        //收到内存警告时，清除NSCache：[self.memCache removeAllObjects];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-
+        //程序关闭时，会对硬盘文件做一些处理
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(cleanDisk)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-
+        //程序进入后台时，也会进行硬盘文件处理
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundCleanDisk)
                                                      name:UIApplicationDidEnterBackgroundNotification
@@ -174,6 +174,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #pragma mark SDImageCache (private)
 
+//当下载完图片后，会先将图片保存到NSCache中，并把图片像素大小作为该对象的cost值
 - (NSString *)cachedFileNameForKey:(NSString *)key {
     const char *str = [key UTF8String];
     if (str == NULL) {
@@ -196,6 +197,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
+//保存到硬盘，会先判断图片的格式，PNG或者JPEG，并保存对应的NSData到缓存路径中，文件名为URL的MD5值
 - (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
     if (!image || !key) {
         return;
@@ -203,6 +205,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // if memory cache is enabled
     if (self.shouldCacheImagesInMemory) {
         NSUInteger cost = SDCacheCostForImage(image);
+        ////保存到NSCache，cost为像素值
         [self.memCache setObject:image forKey:key cost:cost];
     }
 
@@ -223,9 +226,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
                                   alphaInfo == kCGImageAlphaNoneSkipFirst ||
                                   alphaInfo == kCGImageAlphaNoneSkipLast);
+                //判断图片格式
                 BOOL imageIsPng = hasAlpha;
 
                 // But if we have an image data, we will look at the preffix
+                // 查看imagedata的前缀是否是PNG的前缀格式
                 if ([imageData length] >= [kPNGSignatureData length]) {
                     imageIsPng = ImageDataHasPNGPreffix(imageData);
                 }
@@ -240,7 +245,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
 #endif
             }
-
+            //保存data到指定的路径中
             [self storeImageDataToDisk:data forKey:key];
         });
     }
@@ -366,6 +371,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return nil;
 }
 
+//在硬盘查询的时候，会在后台将NSData转成UIImage，并完成相关的解码工作
 - (UIImage *)diskImageForKey:(NSString *)key {
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data) {
@@ -396,22 +402,24 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 
     // First check the in-memory cache...
+    // 首先查找内存缓存
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
         doneBlock(image, SDImageCacheTypeMemory);
         return nil;
     }
-
+    //硬盘查找
     NSOperation *operation = [NSOperation new];
     dispatch_async(self.ioQueue, ^{
         if (operation.isCancelled) {
             return;
         }
-
+        //创建自动释放池，内存及时释放
         @autoreleasepool {
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage && self.shouldCacheImagesInMemory) {
                 NSUInteger cost = SDCacheCostForImage(diskImage);
+                //缓存到NSCache中
                 [self.memCache setObject:diskImage forKey:key cost:cost];
             }
 
@@ -507,6 +515,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     [self cleanDiskWithCompletionBlock:nil];
 }
 
+//清除过期的文件，默认一星期
+//如果设置了最大缓存，并且当前缓存的文件超过了这个限制，则删除最旧的文件，直到当前缓存文件的大小为最大缓存大小的一半
 - (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];

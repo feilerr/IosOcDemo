@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<!--<meta name="MobileOptimized" content="320"/>-->
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var auths={};
+function plusReady(){
+	// 获取登录认证通道
+/*getServices:获取授权登录认证服务列表
+void plus.oauth.getServices( successCB, errorCB );				
+说明：获取终端支持的权登录认证服务列表，可用于提示用户进行登录平台的选择。获取授权登录认证服务成功后通过successCB回调返回支持的所有服务列表，获取服务失败则通过errorCB回调返回失败信息。
+参数：
+successCB: ( ServicesSuccessCallback ) 必选 获取授权登录认证服务成功回调函数.获取授权登录认证服务列表成功时触发回调，并返回终端支持的授权登录认证服务列表。
+errorCB: ( AuthErrorCallback ) 可选 获取授权登录认证服务失败回调函数.获取授权登录认证服务列表失败时触发回调，并返回错误信息。
+
+ServicesSuccessCallback:获取授权登录认证服务成功回调
+void ServicesSuccessCallback( services ) {
+	// Get oauth services success code
+}				
+说明：当获取授权登录认证服务列表成功时触发，并通过services参数返回运行环境支持的授权登录认证服务列表。
+参数：
+services: ( Array[ AuthService ] ) 必选 运行环境支持的授权登录认证服务列表
+运行环境支持的授权登录认证服务列表数组，可通过services.length获取服务列表的数目。 如果当前运行环境没有支持的授权登录认证服务，则返回空数组。
+
+AuthService:授权登录认证服务对象				
+1.说明
+AuthService对象用于表示授权登录认证服务，在JS中为对象，用于向系统进行授权登录认证操作。
+2.属性
+id: 授权登录认证服务标识
+description: 授权登录认证服务描述
+authResult: 授权认证结果数据
+userInfo: 授权登录认证用户信息
+extra: 授权登录认证扩展信息
+3.方法
+login: 请求授权登录认证操作
+logout: 注销授权登录认证
+getUserInfo: 获取授权登录用户信息
+addPhoneNumber: 添加用户手机号信息*/
+	plus.oauth.getServices(function(services){
+		var content=document.getElementById('dcontent');
+		var info=document.getElementById("info");
+		var txt="登录认证通道信息：";
+		for(var i in services){
+			var service=services[i];
+			console.log(service.id+": "+service.authResult+", "+service.userInfo);
+			auths[service.id]=service;
+			txt += "id:"+service.id+", ";//授权登录认证服务标识，例如：weixin
+			txt += "description:"+service.description+", ";//授权登录认证服务描述，例如：微信
+			var de=document.createElement('div');
+			de.setAttribute('class','button');
+			de.setAttribute('onclick','login(this.id)');
+			de.id=service.id;
+			de.innerText=service.description+"登录";
+			oauth.appendChild(de);//登录按钮
+		}
+		info.innerText=txt;
+	},function(e){
+		outLine("获取登录认证失败："+e.message);
+	});
+}
+document.addEventListener('plusready',plusReady,false);
+// 登录认证
+function login(id){
+	outSet("----- 登录认证 -----");
+	var auth=auths[id];//对应id的AuthService:授权登录认证服务对象	
+	if(auth){
+		var w=null;
+		if(plus.os.name=="Android"){
+			w=plus.nativeUI.showWaiting();
+		}
+		document.addEventListener("pause",function(){
+			setTimeout(function(){
+				w&&w.close();w=null;
+			},2000);
+		}, false );
+/*login:请求授权登录认证操作						
+void obj.login( successCallback, errorCallback, options );						
+说明：对指定的授权登录认证服务进行登录认证操作，在登录前可通过对象的authResult属性判断是否已经登录认证过，通常只需要对没有进行过登录认证的服务进行登录认证操作。授权认证操作成功后通过successCB回调函数通知，失败则通过errorCB回调函数通知。
+参数：
+successCallback: ( AuthSuccessCallback ) 必选 授权登录认证服务登录认证成功回调函数.授权登录认证服务登录认证操作成功时触发，并返回登录认证成功信息。
+errorCallback: ( AuthErrorCallback ) 可选 授权登录认证服务登录认证失败回调函数.授权登录认证服务授权认证操作失败时触发，并返回错误信息。
+options: ( AuthOptions ) 可选 授权登录认证参数.授权登录认证服务授权认证操作使用的参数。
+
+AuthSuccessCallback:授权登录认证服务操作成功回调函数
+void AuthSuccessCallback( event ) {
+	　　// auth code
+}				
+说明：授权登录认证服务操作如请求授权登录认证、获取授权登录用户信息成功时触发，并返回操作结果。
+参数：
+event: ( JSON ) 必选 授权登录认证服务操作回调事件参数.包括以下参数： event.target - 表示授权登录认证服务对象，可以通过此对象的authResult、userInfo属性来获取操作结果信息。
+
+AuthService:授权登录认证服务对象				
+属性
+id: 授权登录认证服务标识
+description: 授权登录认证服务描述
+authResult: 授权认证结果数据
+userInfo: 授权登录认证用户信息
+extra: 授权登录认证扩展信息
+
+AuthOptions：JSON对象，授权认证参数选项				
+说明：此对象支持的属性值由授权登录认证服务定义。 例如“微信”，则可配置以下参数： scope - 应用授权作用域； state - 用于保持请求和回调的状态参数。
+属性：
+scope: (String 类型 )申请的权限范围
+state: (String 类型 )客户端的当前状态，可以指定任意值，登录认证后原封不动的返回保存到AuthService对象的extra中
+appkey: (String 类型 )360开放平台申请的生活助手应用appkey标识
+* */
+		auth.login(function(){
+			w&&w.close();w=null;
+			outLine("登录认证成功：");
+			outLine(JSON.stringify(auth.authResult));
+			userinfo(auth);
+		},function(e){
+			w&&w.close();w=null;
+			outLine("登录认证失败：");
+			outLine("["+e.code+"]："+e.message);
+			plus.nativeUI.alert("详情错误信息请参考授权登录(OAuth)规范文档：http://www.html5plus.org/#specification#/specification/OAuth.html",null,"登录失败["+e.code+"]："+e.message);
+		});
+	}else{
+		outLine("无效的登录认证通道！");
+		plus.nativeUI.alert("无效的登录认证通道！",null,"登录");
+	}
+}
+// 获取用户信息
+function userinfo(a){
+	outLine("----- 获取用户信息 -----");
+/*getUserInfo:获取授权登录用户信息
+void obj.getUserInfo( successCallback, errorCallback );						
+说明：获取授权登录认证的用户信息，在获取前可通过对象的userInfo属性判断是否已经获取过，通常只需要对没有获取过用户信息的服务进行操作。 获取用户信息操作成功后通过successCallback回调函数通知，失败则通过errorCallback回调函数通知。
+参数：
+successCallback: ( AuthSuccessCallback ) 必选 获取授权登录用户信息成功回调函数.获取登录认证用户信息操作成功时触发，并返回用户的信息。
+errorCallback: ( AuthErrorCallback ) 可选 获取授权登录用户信息失败回调函数.获取登录认证用户信息操作失败时触发，并返回错误信息。
+
+AuthSuccessCallback:授权登录认证服务操作成功回调函数
+void AuthSuccessCallback( event ) {
+	　　// auth code
+}				
+说明：授权登录认证服务操作如请求授权登录认证、获取授权登录用户信息成功时触发，并返回操作结果。
+参数：event: ( JSON ) 必选 授权登录认证服务操作回调事件参数.包括以下参数： event.target - 表示授权登录认证服务对象，可以通过此对象的authResult、userInfo属性来获取操作结果信息。*/
+	a.getUserInfo(function(){
+		outLine("获取用户信息成功：");
+/*userInfo:授权登录认证用户信息
+说明：JSON 类型 只读属性.用于标识此授权登录认证服务是否已经获取过用户信息，如果已经通过授权登录并获取用户信息成功则保存用户相关信息，否则为undefined。 例如“微信”，则可能保存以下数据： openid - 普通用户的标识，对当前开发者帐号唯一; nickname - 普通用户昵称; sex - 普通用户性别，1为男性，2为女性; province - 普通用户个人资料填写的省份; city - 普通用户个人资料填写的城市; country - 国家，如中国为CN; headimgurl - 用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，0代表640*640正方形头像），用户没有头像时该项为空; privilege - 用户特权信息，json数组，如微信沃卡用户为（chinaunicom）; unionid - 用户统一标识。针对一个微信开放平台帐号下的应用，同一用户的unionid是唯一的。
+*/
+        outLine(JSON.stringify(a.userInfo));
+		var nickname=a.userInfo.nickname||a.userInfo.name;
+		plus.nativeUI.alert("欢迎“"+nickname+"”登录！");
+	},function(e){
+		outLine("获取用户信息失败：");
+		outLine("["+e.code+"]："+e.message);
+		plus.nativeUI.alert("获取用户信息失败！",null,"登录");
+	});
+}
+// 注销登录
+function logoutAll(){
+	outSet("----- 注销登录认证 -----");
+	for(var i in auths){
+		logout(auths[i]);
+	}
+}
+function logout(auth){
+/*logout:注销授权登录认证
+void obj.logout( successCallback, errorCallback );						
+说明：对指定的授权登录认证服务注销登录认证操作，注销授权认证后，再次操作时需重新进行登录认证操作。 如果第三方平台不需要注销操作，则情况保存的相关登录认证等信息。
+参数：successCallback: ( AuthLogoutSuccessCallback ) 必选 注销授权登录认证成功回调函数.注销授权登录认证服务登录认证操作成功时触发，并返回注销登录认证成功信息。
+errorCallback: ( AuthErrorCallback ) 可选 注销授权登录认证失败回调函数.注销授权登录认证服务授权认证操作失败时触发，并返回错误信息。*/
+	auth.logout(function(){
+		outLine("注销\""+auth.description+"\"成功");
+	},function(e){
+		outLine("注销\""+auth.description+"\"失败："+e.message);
+	});
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+		<style type="text/css">
+#total{
+	-webkit-user-select:text;
+	text-align:right;
+	padding:0 1em;
+	border: 0px;
+	border-bottom:1px solid #ECB100;
+	border-radius: 0;
+	font-size:16px;
+	width:30%;
+	outline:none;
+}
+		</style>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back()"></div>
+			<div class="nvtt">OAuth</div>
+			<div class="nvbt idoc" onclick="openDoc('OAuth Document','/doc/oauth.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<p id="info" style="padding: 0 1em;text-align:left;">登录认证通道信息：</p>
+			<div style="padding: 0.5em 1em;"><hr color="#EEE"/></div>
+			<br/>
+			<div id="oauth"></div>
+			<br/>
+			<div class="button button-waring" onclick="logoutAll()">注销登录</div>
+		</div>
+		<div id="output">
+OAuth模块管理客户端的用户授权登录验证功能，允许应用访问第三方平台的资源。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

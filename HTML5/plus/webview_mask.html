@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var ws=null,wc=null;
+// 扩展API加载完毕，现在可以正常调用扩展API 
+function plusReady(){
+	ws=plus.webview.currentWebview();
+	// 用户点击后
+	/*"maskClick": (String 类型 )Webview窗口显示遮罩层时点击事件*/
+	ws.addEventListener("maskClick",function(){
+/*close:关闭Webview窗口
+void wobj.close( aniClose, duration, extras );						
+说明：关闭并销毁Webview窗口，可设置关闭动画和动画持续时间。
+aniClose: ( AnimationTypeClose ) 可选 关闭Webview窗口动画效果.如果没有指定关闭窗口动画，则使用默认值“auto”，即使用显示时设置的窗口动画相对应的关闭动画。
+duration: ( Number ) 可选 关闭Webview窗口的动画持续时间.单位为ms，默认为窗口show方法设定的动画时间。
+extras: ( WebviewExtraOptions ) 可选 关闭Webview窗口扩展参数.可用于指定Webview窗口动画是否使用图片加速。
+*/
+    wc.close("auto");
+	},false);
+}
+// 判断扩展API是否准备，否则监听"plusready"事件
+if(window.plus){
+	plusReady();
+}else{
+	document.addEventListener("plusready",plusReady,false);
+}
+// 显示侧滑页面
+function showSide(){
+	// 防止快速点击可能导致多次创建
+	if(wc){
+		return;
+	}
+	// 开启遮罩
+/*setStyle:设置Webview窗口的样式
+void wobj.setStyle( styles );						
+说明：更新Webview窗口的样式，如窗口位置、大小、背景色等。
+WebviewStyles：JSON对象，原生窗口设置参数的对象
+               属性：
+        background: (String 类型 )窗口的背景颜色。
+        blockNetworkImage: (Boolean 类型 )是否阻塞网络图片的加载。
+        bottom: (String 类型 )窗口垂直向上的偏移量
+        bounce: (String 类型 )窗口遇到边框是否有反弹效果
+        bounceBackground: (String 类型 )窗口回弹效果区域的背景
+        decelerationRate: (Number 类型 )窗口内容停止滑动的减速度
+        dock: (WebviewDock 类型 )窗口的停靠方式
+        errorPage: (String 类型 )窗口加载错误时跳转的页面地址
+        hardwareAccelerated: (Boolean 类型 )窗口是否开启硬件加速
+        height: (String 类型 )窗口的高度
+        kernel: (String 类型 )窗口使用的内核
+        left: (String 类型 )窗口水平向右的偏移量
+        margin: (String 类型 )窗口的边距
+        mask: (String 类型 )窗口的遮罩.用于设置Webview窗口的遮罩层样式，遮罩层会覆盖Webview中所有内容，包括子webview，并且截获webview的所有触屏事件，此时Webview窗口的点击操作会触发maskClick事件。 字符串类型，可取值： rgba格式字符串，定义纯色遮罩层样式，如"rgba(0,0,0,0.5)"，表示黑色半透明； "none"，表示不使用遮罩层； 默认值为"none"，即无遮罩层。
+        opacity: (Number 类型 )窗口的不透明度
+        popGesture: (String 类型 )窗口的侧滑返回功能，可取值"none"：无侧滑返回功能；"close"：侧滑返回关闭Webview窗口；"hide"：侧滑返回隐藏webview窗口。 仅iOS平台支持。
+        render: (String 类型 )窗口渲染模式
+        right: (String 类型 )窗口水平向左的偏移量
+        scalable: (Boolean 类型 )窗口是否可缩放
+        scrollIndicator: (String 类型 )窗口是否显示滚动条
+        scrollsToTop: (Boolean 类型 )点击设备的状态栏时是否滚动返回至顶部
+        softinputMode: (String 类型 )弹出系统软键盘模式
+        top: (String 类型 )窗口垂直向下的偏移量
+        transition: (WebviewTransition 类型 )窗口定义窗口变换的动画效果
+        transform: (WebviewTransform 类型 )窗口定义窗口变形效果
+        position: (WebviewPosition 类型 )Webview窗口的排版位置
+        width: (String 类型 )窗口的宽度
+        zindex: (Number 类型 )窗口的堆叠顺序值	*/
+	ws.setStyle({mask:"rgba(0,0,0,0.5)"});
+	// 创建侧滑页面
+/*popGesture: (String 类型 )窗口的侧滑返回功能
+可取值"none"：无侧滑返回功能；"close"：侧滑返回关闭Webview窗口；"hide"：侧滑返回隐藏webview窗口。 仅iOS平台支持。*/
+	wc=plus.webview.create("webview_mask_side.html","side",{left:"30%",width:"70%",popGesture:"none"});
+	// 侧滑页面关闭后关闭遮罩
+	wc.addEventListener('close',function(){
+		ws.setStyle({mask:"none"});
+		wc=null;
+	},false);
+	// 侧滑页面加载后显示（避免白屏）
+	wc.addEventListener("loaded",function(){
+		wc.show("slide-in-right",200);
+	},false);
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back()"></div>
+			<div class="nvtt">Webview Mask</div>
+		</header>
+		<div id="content" class="content">
+			<br/>
+			<div class="button" onclick="showSide()">打开侧滑窗口</div>
+			<div class="des">打开侧滑窗口后，当前Webview窗口会显示遮罩层。</div>
+			<div class="des">Webview的遮罩层会覆盖Webview中所有内容（包括子Webview），并且截获Webview窗口的所有触屏事件。</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

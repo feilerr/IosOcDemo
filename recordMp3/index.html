@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-store">
+    <meta http-equiv="Cache-Control" content="must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="rrxiu - www.rrxiu.net">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+
+    <!-- Behavioral Meta Data -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <script src="http://assets3.rrxiu.net/lib/jquery.min.js"></script>
+    <style>
+        html, body {
+            margin: 0px;
+            height: 100%;
+        } 
+    </style>
+</head>
+<body style="background-color: gray;">
+    <div id="main" style="width:418px;height:100%;background-color:blue;">
+
+        <button onclick="funStart(this);" id="btnStart" disabled>录制</button>
+        <button onclick="funStop(this);" id="btnStop" disabled>停止</button>
+        <button onclick="funUpload(this);" id="btnUpload" disabled>上传</button>
+        <button onclick="funTest();" id="btnTest">测试</button>
+<h4>调试信息：</h4>
+        <div id="recordingslist"></div>
+
+    </div>
+    <script src="recordmp3.js"></script>
+    <script>
+        var recorder = new MP3Recorder({
+            debug:true,
+            funOk: function () {
+                btnStart.disabled = false;
+                log('初始化成功');
+            },
+            funCancel: function (msg) {
+                log(msg);
+                recorder = null;
+            }
+        });
+        var mp3Blob;
+
+
+        function funStart(button) {
+            btnStart.disabled = true;
+            btnStop.disabled = false;
+            btnUpload.disabled = true;
+            log('录音开始...');
+            recorder.start();
+        }
+
+        function funStop(button) {
+            recorder.stop();
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+            btnUpload.disabled = false;
+            log('录音结束，MP3导出中...');
+            recorder.getMp3Blob(function (blob) {
+                log('MP3导出成功');
+
+                mp3Blob = blob;
+                var url = URL.createObjectURL(mp3Blob);
+                var div = document.createElement('div');
+                var au = document.createElement('audio');
+                var hf = document.createElement('a');
+
+                au.controls = true;
+                au.src = url;
+                hf.href = url;
+                hf.download = new Date().toISOString() + '.mp3';
+                hf.innerHTML = hf.download;
+                div.appendChild(au);
+                div.appendChild(hf);
+                recordingslist.appendChild(div);
+            });
+        }
+
+        function log(str) {
+            recordingslist.innerHTML += str + '<br/>';
+        }
+    
+    function funTest(){
+        alert('测试');
+    }
+
+        function funUpload() {
+            var fd = new FormData();
+            var mp3Name = encodeURIComponent('audio_recording_' + new Date().getTime() + '.mp3');
+            fd.append('mp3Name', mp3Name);
+            fd.append('file', mp3Blob);
+
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    recordingslist.innerHTML += '上传成功：<a href="' + xhr.responseText + '" target="_blank">' + mp3Name + '</a>';
+                }
+            };
+        
+            xhr.open('POST', 'upload.ashx');
+            xhr.send(fd);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var img = null;
+var blist = [];//数组，存储返回的对象
+//在无历史记录中显示记录
+function scaned( t, r, f ) {//由barcode_scan.html和barcode_scan2.html利用evalJs()提前加载。
+	var d = new Date();
+	var h=d.getHours(),m=d.getMinutes(),s=d.getSeconds(),ms=d.getMilliseconds();
+	if ( h < 10 ) { h='0'+h; }
+	if ( m < 10 ) { m='0'+m; }
+	if ( s < 10 ) { s='0'+s; }
+	if ( ms < 10 ) { ms='00'+ms; } else if ( ms < 100 ) { ms='0'+ms; }
+	var ts = '['+h+':'+m+':'+s+'.'+ms+']';
+	var li=null,hl = document.getElementById("history");//无历史记录<ul>
+	if ( blist.length > 0 ) {
+		li = document.createElement("li");
+		li.className = "ditem";
+		hl.insertBefore( li, hl.childNodes[0] );//添加到<ul>第一<li>前面
+	} else {
+		li = document.getElementById("nohistory");//无历史记录<li>
+	}
+	li.id = blist.length;
+	var html = '['+h+':'+m+':'+s+'.'+ms+']'+'　　'+t+'码<div class="hdata">';
+	html += r;
+	html += '</div>';
+	li.innerHTML = html;
+	li.setAttribute( "onclick", "selected(id);" );//设置<li>的属性，点击激活selected()
+	blist[blist.length] = {type:t,result:r,file:f};//给blist数组赋对象值
+	update( t, r, f );
+}
+function selected( id ) {
+	var h = blist[id];
+	update( h.type, h.result, h.file );
+	if ( h.result.indexOf("http://")==0  || h.result.indexOf("https://")==0 ) {
+		plus.nativeUI.confirm( h.result, function ( i ) {
+			if ( i.index == 0 ) {
+/*openURL:调用第三方程序打开指定的URL
+void plus.runtime.openURL( url, errorCB, identity );
+参数：
+url: ( String ) 必选 要打开的URL地址.字符串类型，各平台支持的地址类型存在差异，参考平台URL支持表。
+errorCB: ( OpenErrorCallback ) 可选 打开URL地址失败的回调.打开指定URL地址失败时回调，并返回失败信息。
+identity: ( String ) 可选 指定打开URL地址的程序名称.在iOS平台此参数被忽略，在Android平台为程序包名，如果指定的包名不存在，则打开URL地址失败。*/
+				plus.runtime.openURL( h.result );
+			}
+		}, "", ["打开","取消"] );
+	} else {
+		plus.nativeUI.alert( h.result );
+	}
+}
+function update( t, r, f ) {
+	outSet( "扫描成功：");
+	outLine( t );
+	outLine( r );
+	outLine( "\n图片地址："+f );
+	if ( !f || f=="null" ) {
+		img.src = "../img/barcode.png";	
+	} else {
+		plus.io.resolveLocalFileSystemURL(f,function(entry){
+			img.src=entry.toLocalURL();
+		});
+		//img.src = "http://localhost:13131/"+f;
+	}
+}
+function onempty() {
+	if ( window.plus ) {
+		plus.nativeUI.alert('无扫描记录');
+	} else {
+		alert( '无扫描记录' );
+	}
+}
+function cleanHistroy() {
+	if ( blist.length > 0 ) {
+		var hl = document.getElementById("history");
+		hl.innerHTML = '<li id="nohistory" class="ditem" onclick="onempty();">无历史记录	</li>';
+	}
+	plus.io.resolveLocalFileSystemURL( "_doc/barcode/", function ( entry ) {
+		//删除目录将会删除其下的所有文件及子目录 不能删除根目录，如果操作删除根目录将会删除目录下的文件及子目录，不会删除根目录自身。
+		entry.removeRecursively( function () {
+			// Success
+		}, function ( e ) {
+			//alert( "failed"+e.message );
+		});
+	} );
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+		<style type="text/css" media="screen">
+.hdata {
+	color: #e1673e;	
+	font-size: 14px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+		</style>
+	</head>
+	<body onload="img=document.getElementById('bimg');">
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Barcode</div>
+			<div class="nvbt idoc" onclick="openDoc('Barcode Document','/doc/barcode.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<img style="width:40%" id="bimg" src="../img/barcode.png"/>
+			<br/>
+			<div class="button" onclick="clicked('barcode_scan.html',true,true);">扫一扫</div>
+			<div class="button" onclick="clicked('barcode_scan2.html',true,true);">扫一扫（自定义）</div>
+			<br/>
+			<ul id="history" class="dlist" style="text-align:left;">
+				<li id="nohistory" class="ditem" onclick="onempty();">无历史记录	</li>
+			</ul>
+			<br/>
+			<div class="button button-waring" onclick="cleanHistroy();">清空历史记录</div>
+		</div>
+		<div id="output">
+Barcode提供二维码扫描识别功能，支持调用摄像头即时扫描二维码，也可直接输入图片进行扫描识别。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

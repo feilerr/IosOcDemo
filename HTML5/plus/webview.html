@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+// 预创建二级页面
+var preate={};
+function preateWebivew(id){
+	if(!preate[id]){
+		var w=plus.webview.create(id,id,{scrollIndicator:'none',scalable:false,popGesture:'hide'},{preate:true});
+		preate[id]=w;
+/*WebviewEvent:Webview窗口事件
+"close": (String 类型 )Webview窗口关闭事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口关闭时触发此事件，回调函数类型为EventCallback。
+"dragBounce": (String 类型 )Webview窗口回弹事件.通过WebviewObject对象的setBounce方法开启回弹效果设置顶部下拉回弹changeoffset属性后，当用户向下拖拽窗口时触发发此事件，回调函数类型为BounceEventCallback。
+"slideBounce": (String 类型 )Webview窗口回弹事件.通过WebviewObject对象的setBounce方法开启回弹效果设置左右侧侧滑slideoffset属性后，当用户向左右侧拖拽窗口侧滑时触发发此事件，回调函数类型为BounceEventCallback。
+"error": (String 类型 )Webview窗口加载错误事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口加载错误时触发此事件，回调函数类型为EventCallback。
+"hide": (String 类型 )Webview窗口隐藏事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口隐藏（窗口动画完成后）时触发此事件，回调函数类型为EventCallback。
+"loading": (String 类型 )Webview窗口页面开始加载事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口开始加载新页面时触发此事件，回调函数类型为EventCallback。
+"loaded": (String 类型 )Webview窗口页面加载完成事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口页面加载完成时触发此事件，回调函数类型为EventCallback。
+"maskClick": (String 类型 )Webview窗口显示遮罩层时点击事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口通过mask属性设置显示遮罩层并且点击时触发此事件，回调函数类型为EventCallback。
+"show": (String 类型 )Webview窗口显示事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口显示（窗口动画完成后）时触发此事件，回调函数类型为EventCallback。
+"popGesture": (String 类型 )Webview窗口侧滑返回事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口侧滑返回时触发此事件，回调函数类型为PopGestureCallback。
+"titleUpdate": (String 类型 )Webview加载页面标题更新事件.通过WebviewObject对象的addEventListener方法添加事件监听函数，当Webview窗口加载新页面更新标题时触发此事件，回调函数类型为SuccessCallback。 注意：此事件会先于loaded事件触发，通常在加载网络页面时通过此事件可更快获取到页面的标题。*/
+        w.addEventListener('close',function(){//页面关闭后可再次打开
+			_openw=null;
+			preate[id]&&(preate[id]=null);//兼容窗口的关闭
+		},false);
+	}
+}
+// 判断预载打开
+var _openw=null;
+function pclicked(id){
+	if(_openw){return;}
+	_openw=preate[id];
+	if(_openw){
+		if(_openw.showded){
+/*show:显示Webview窗口
+void wobj.show( aniShow, duration, showedCB, extras );
+aniShow: ( AnimationTypeShow ) 可选 Webview窗口显示动画类型.如果没有指定窗口动画类型，则使用默认值“none”，即无动画。
+duration: ( Number ) 可选 Webview窗口显示动画持续时间.单位为ms，默认使用动画类型想对应的默认时间。
+showedCB: ( SuccessCallback ) 可选 Webview窗口显示完成的回调函数.当指定Webview窗口显示动画执行完毕时触发回调函数，窗口无动画效果（如"none"动画效果）时也会触发此回调。
+extras: ( WebviewExtraOptions ) 可选 显示Webview窗口扩展参数.可用于指定Webview窗口动画是否使用图片加速。
+
+AnimationTypeShow:一组用于定义页面或控件显示动画效果
+"auto": (String 类型 )自动选择动画效果.自动选择动画效果，使用上次显示窗口设置的动画效果，如果是第一次显示则默认动画效果“none”。
+"none": (String 类型 )无动画效果.立即显示页面，无任何动画效果，页面显示默认的动画效果。 此效果忽略动画时间参数，立即显示。 对应关闭动画"none"。
+"slide-in-right": (String 类型 )从右侧横向滑动效果.页面从屏幕右侧外向内横向滑动显示。 对应关闭动画"slide-out-right"。
+"slide-in-left": (String 类型 )从左侧横向滑动效果.页面从屏幕左侧向右横向滑动显示。 对应关闭动画"slide-out-left"。
+"slide-in-top": (String 类型 )从上侧竖向滑动效果.页面从屏幕上侧向下竖向滑动显示。 对应关闭动画"slide-out-top"。
+"slide-in-bottom": (String 类型 )从下侧竖向滑动效果.页面从屏幕下侧向上竖向滑动显示。 对应关闭动画"slide-out-bottom"。
+"fade-in": (String 类型 )从透明到不透明逐渐显示效果.页面从完全透明到不透明逐渐显示。 对应关闭动画"fade-out"。
+"zoom-out": (String 类型 )从小到大逐渐放大显示效果.页面在屏幕中间从小到大逐渐放大显示。 对应关闭动画"zoom-in"。
+"zoom-fade-out": (String 类型 )从小到大逐渐放大并且从透明到不透明逐渐显示效果.页面在屏幕中间从小到大逐渐放大并且从透明到不透明逐渐显示。 对应关闭动画"zoom-fade-in"。
+"pop-in": (String 类型 )从右侧平移入栈动画效果.页面从屏幕右侧滑入显示，同时上一个页面带阴影效果从屏幕左侧滑出隐藏。 对应关闭动画"pop-out"。
+*/
+            _openw.show('auto');
+		}else{
+			_openw.show(as);
+			_openw.showded=true;
+		}
+		_openw=null;
+	}else{
+	/*	create:创建新的Webview窗口
+        WebviewObject plus.webview.create( url, id, styles, extras );
+		说明：创建Webview窗口，用于加载新的HTML页面，可通过styles设置Webview窗口的样式，创建完成后需要调用show方法才能将Webview窗口显示出来。
+        url: ( String ) 可选 新窗口加载的HTML页面地址.新打开Webview窗口要加载的HTML页面地址，可支持本地地址和网络地址。
+        id: ( String ) 可选 新窗口的标识.窗口标识可用于在其它页面中通过getWebviewById来查找指定的窗口，为了保持窗口标识的唯一性，应该避免使用相同的标识来创建多个Webview窗口。 如果传入无效的字符串则使用url参数作为WebviewObject窗口的id值。
+        styles: ( WebviewStyles ) 可选 创建Webview窗口的样式（如窗口宽、高、位置等信息）
+        extras: ( JSON ) 可选 创建Webview窗口的额外扩展参数.值为JSON类型，设置扩展参数后可以直接通过Webview的点（“.”）操作符获取扩展参数属性值，如： var w=plus.webview.create('url.html','id',{},{preload:"preload webview"}); // 可直接通过以下方法获取preload值 console.log(w.preload); // 输出值为“preload webview”
+		WebviewStyles：JSON对象，原生窗口设置参数的对象
+               属性：
+        background: (String 类型 )窗口的背景颜色。
+        blockNetworkImage: (Boolean 类型 )是否阻塞网络图片的加载。
+        bottom: (String 类型 )窗口垂直向上的偏移量
+        bounce: (String 类型 )窗口遇到边框是否有反弹效果
+        bounceBackground: (String 类型 )窗口回弹效果区域的背景
+        decelerationRate: (Number 类型 )窗口内容停止滑动的减速度
+        dock: (WebviewDock 类型 )窗口的停靠方式
+        errorPage: (String 类型 )窗口加载错误时跳转的页面地址
+        hardwareAccelerated: (Boolean 类型 )窗口是否开启硬件加速
+        height: (String 类型 )窗口的高度
+        kernel: (String 类型 )窗口使用的内核
+        left: (String 类型 )窗口水平向右的偏移量
+        margin: (String 类型 )窗口的边距
+        mask: (String 类型 )窗口的遮罩
+        opacity: (Number 类型 )窗口的不透明度
+        popGesture: (String 类型 )窗口的侧滑返回功能，可取值"none"：无侧滑返回功能；"close"：侧滑返回关闭Webview窗口；"hide"：侧滑返回隐藏webview窗口。 仅iOS平台支持。
+        render: (String 类型 )窗口渲染模式
+        right: (String 类型 )窗口水平向左的偏移量
+        scalable: (Boolean 类型 )窗口是否可缩放
+        scrollIndicator: (String 类型 )窗口是否显示滚动条
+        scrollsToTop: (Boolean 类型 )点击设备的状态栏时是否滚动返回至顶部
+        softinputMode: (String 类型 )弹出系统软键盘模式
+        top: (String 类型 )窗口垂直向下的偏移量
+        transition: (WebviewTransition 类型 )窗口定义窗口变换的动画效果
+        transform: (WebviewTransform 类型 )窗口定义窗口变形效果
+        position: (WebviewPosition 类型 )Webview窗口的排版位置
+        width: (String 类型 )窗口的宽度
+        zindex: (Number 类型 )窗口的堆叠顺序值
+		* **/		
+		_openw=plus.webview.create(id,id,{scrollIndicator:'none',scalable:false,popGesture:'hide'});
+		preate[id]=_openw;
+		_openw.addEventListener('loaded',function(){//叶面加载完成后才显示
+//			setTimeout(function(){
+			_openw.show(as);
+			_openw.showded=true;
+			_openw=null;
+//			},10);
+		},false);
+		_openw.addEventListener('close',function(){//页面关闭后可再次打开
+			_openw=null;
+			preate[id]&&(preate[id]=null);//兼容窗口的关闭
+		},false);
+	}
+}
+// H5 plus事件处理
+var as='pop-in';// 默认动画类型
+function plusReady(){
+//	preateWebivew('webview_animation.html');
+//	preateWebivew('webview_pullhead.html');
+}
+if(window.plus){
+	plusReady();
+}else{
+	document.addEventListener('plusready',plusReady,false);
+}
+// 创建悬浮窗口
+var floatw=null;
+function floatWebview(){
+	if(floatw){ // 避免快速多次点击创建多个窗口
+		return;
+	}
+	floatw=plus.webview.create("webview_float.html","webview_float.html",{width:'200px',height:'200px',margin:"auto",background:"rgba(0,0,0,0.8)",scrollIndicator:'none',scalable:false,popGesture:'none'});
+	floatw.addEventListener("loaded",function(){
+		floatw.show('fade-in',300);
+		floatw=null;
+	},false);
+}
+// 创建自定义下拉刷新窗口
+function customeRefresh(){
+	if(plus.os.name!="Android"){
+		 compatibleConfirm();
+	}else{
+		clicked('webview_pullhead_custom.html',true,true);
+	}
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">webview</div>
+			<div class="nvbt idoc" onclick="openDoc('Webview Document','/doc/webview.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<div class="button" onclick="pclicked('webview_animation.html',true,true)">窗口动画</div>
+			<div class="button" onclick="clicked('webview_embed.html',true)">窗口嵌套</div>
+			<div class="button" onclick="floatWebview()">悬浮窗口</div>
+			<!--<div class="button" onclick="pclicked('webview_pullhead.html',true,true)">下拉刷新</div>-->
+			<div class="button" onclick="customeRefresh()"><!--自定义-->下拉刷新</div>
+			<div class="button" onclick="clicked('webview_mask.html',true)">窗口遮罩</div>
+			<br/>
+		</div>
+		<div id="output">
+Webview模块管理应用窗口界面，实现多窗口的逻辑控制管理操作。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

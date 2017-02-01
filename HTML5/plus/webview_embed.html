@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript" charset="utf-8">
+var ws=null,embed=null;
+// 扩展API加载完毕，现在可以正常调用扩展API 
+function plusReady(){
+	ws=plus.webview.currentWebview();
+	ws.addEventListener('show',createEmbed,false);
+}
+// 判断扩展API是否准备，否则监听"plusready"事件
+if(window.plus){
+	plusReady();
+}else{
+	document.addEventListener("plusready",plusReady,false);
+}
+// 创建子Webview
+function createEmbed(){
+	var topoffset='45px';
+/*isImmersedStatusbar:判断当前是否为沉浸式状态栏模式
+Boolean plus.navigator.isImmersedStatusbar();
+说明：如果当前应用采用沉浸式状态栏则返回true，否则返回false。 注意：如果当前系统版本不支持沉浸式状态栏也返回false。*/
+	if(plus.navigator.isImmersedStatusbar()){// 兼容immersed状态栏模式
+/*getStatusbarHeight:获取系统状态栏高度
+Number plus.navigator.getStatusbarHeight();
+说明：单位为像素（px），值为Webview中的逻辑高度单位，如果要获取真实高度则必须乘以plus.screen.scale。*/
+		topoffset=(Math.round(plus.navigator.getStatusbarHeight())+45)+'px';
+	}
+	plus.nativeUI.showWaiting('',{style:'black',modal:false,background:'rgba(0,0,0,0)'});
+	/*	create:创建新的Webview窗口
+        WebviewObject plus.webview.create( url, id, styles, extras );
+		说明：创建Webview窗口，用于加载新的HTML页面，可通过styles设置Webview窗口的样式，创建完成后需要调用show方法才能将Webview窗口显示出来。
+        url: ( String ) 可选 新窗口加载的HTML页面地址.新打开Webview窗口要加载的HTML页面地址，可支持本地地址和网络地址。
+        id: ( String ) 可选 新窗口的标识.窗口标识可用于在其它页面中通过getWebviewById来查找指定的窗口，为了保持窗口标识的唯一性，应该避免使用相同的标识来创建多个Webview窗口。 如果传入无效的字符串则使用url参数作为WebviewObject窗口的id值。
+        styles: ( WebviewStyles ) 可选 创建Webview窗口的样式（如窗口宽、高、位置等信息）
+        extras: ( JSON ) 可选 创建Webview窗口的额外扩展参数.值为JSON类型，设置扩展参数后可以直接通过Webview的点（“.”）操作符获取扩展参数属性值，如： var w=plus.webview.create('url.html','id',{},{preload:"preload webview"}); // 可直接通过以下方法获取preload值 console.log(w.preload); // 输出值为“preload webview”
+		WebviewStyles：JSON对象，原生窗口设置参数的对象
+               属性：
+        background: (String 类型 )窗口的背景颜色。
+        blockNetworkImage: (Boolean 类型 )是否阻塞网络图片的加载。
+        bottom: (String 类型 )窗口垂直向上的偏移量
+        bounce: (String 类型 )窗口遇到边框是否有反弹效果.可取值：none表示没有反弹效果；vertical表示垂直方向有反弹效果；horizontal表示水平方向有反弹效果；all表示垂直和水平方向都有反弹效果。
+        bounceBackground: (String 类型 )窗口回弹效果区域的背景
+        decelerationRate: (Number 类型 )窗口内容停止滑动的减速度.当Webview加载的内容超过其高度时，可以拖拽滑动内容，decelerationRate属性控制手指松开后页面滑动的速度。 设置值越大手指松开后的滑动速度越快（滑动距离越长），其值域范围为0.0-1.0，默认值为0.989。
+        dock: (WebviewDock 类型 )窗口的停靠方式,当Webview窗口添加到另外一个窗口中时，停靠方式才会生效，采用停靠方式添加会导致原Webview窗口自动调整其大小避免其内容呗子窗口盖住。 可取值："top"，控件停靠则页面顶部；"bottom"，控件停靠在页面底部；"right"，控件停靠在页面右侧；"left"，控件停靠在页面左侧。
+        errorPage: (String 类型 )窗口加载错误时跳转的页面地址.当Webview窗口无法加载指定的url地址时（如本地页面不存在，或者无法访问的网络地址），此时会自动跳转到指定的错误页面地址（仅支持本地页面地址）。 设置为“none”则关闭跳转到错误页面功能，此时页面显示Webview默认的错误页面内容。默认使用5+ Runtime内置的错误页面。
+        hardwareAccelerated: (Boolean 类型 )窗口是否开启硬件加速
+        height: (String 类型 )窗口的高度
+        kernel: (String 类型 )窗口使用的内核.可取值： "WKWebview" - 在iOS8.0及以上系统使用WKWebview内核，低版本下仍然使用UIWebview内核； "UIWebview" - 在所有版本上都使用UIWebview内核。 默认值为“UIWebview”。 使用UKWebview内核会有更好的性能，但在功能上有些限制，目前已知的问题有： 1. 不支持设置cookie，即plus.navigator.setCookie() API无法使用； 2. 本地的HTML页面中的XHR不支持跨域访问，需使用plus.net.XMLHttpRequest来替换； 3. 不支持使用WebSQL，需使用indexDB来替换； 4. 不支持js原生混淆功能，需使用前端js混淆来替换。
+        left: (String 类型 )窗口水平向右的偏移量
+        margin: (String 类型 )窗口的边距
+        mask: (String 类型 )窗口的遮罩
+        opacity: (Number 类型 )窗口的不透明度
+        popGesture: (String 类型 )窗口的侧滑返回功能，可取值"none"：无侧滑返回功能；"close"：侧滑返回关闭Webview窗口；"hide"：侧滑返回隐藏webview窗口。 仅iOS平台支持。
+        render: (String 类型 )窗口渲染模式
+        right: (String 类型 )窗口水平向左的偏移量
+        scalable: (Boolean 类型 )窗口是否可缩放
+        scrollIndicator: (String 类型 )窗口是否显示滚动条
+        scrollsToTop: (Boolean 类型 )点击设备的状态栏时是否滚动返回至顶部
+        softinputMode: (String 类型 )弹出系统软键盘模式
+        top: (String 类型 )窗口垂直向下的偏移量
+        transition: (WebviewTransition 类型 )窗口定义窗口变换的动画效果
+        transform: (WebviewTransform 类型 )窗口定义窗口变形效果
+        position: (WebviewPosition 类型 )Webview窗口的排版位置,当Webview窗口添加到另外一个窗口中时，排版位置才会生效，排版位置决定子窗口在父窗口中的定位方式。 可取值："static"，控件在页面中正常定位，如果页面存在滚动条则随窗口内容滚动；"absolute"，控件在页面中绝对定位，如果页面存在滚动条不随窗口内容滚动；"dock"，控件在页面中停靠，停靠的位置由dock属性值决定。
+        width: (String 类型 )窗口的宽度
+        zindex: (Number 类型 )窗口的堆叠顺序值
+*/
+	embed=plus.webview.create('http://weibo.com/dhnetwork/','embed',{top:topoffset,bottom:'0px',position:'dock',dock:'bottom',bounce:'vertical'});
+	ws.append(embed);
+	embed.addEventListener('loaded',function(){
+		plus.nativeUI.closeWaiting();
+	},false);
+	embed.addEventListener('loading',function(){
+		plus.nativeUI.showWaiting('',{style:'black',modal:false,background:'rgba(0,0,0,0)'});
+	},false);
+}
+// 打开网址
+function openUrl(){
+	var url=document.getElementById("url");
+/*loadURL:加载新URL页面
+void wobj.loadURL( url );
+说明：触发Webview窗口从新的URL地址加载页面，如果url地址无效将导致页面显示失败。*/
+	embed.loadURL(url.value);
+	url.blur();
+}
+// 页面加载后自动打开
+document.addEventListener("DOMContentLoaded",function(){
+	if(embed){
+		openUrl();
+	}else{
+		auto=true;
+	}
+},false);
+// 页面跳转完成事件
+function onBrowserLoading(){
+	document.getElementById("url").value=embed.getURL();
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+		<style type="text/css">
+#url{
+	width:98%;
+	-webkit-user-select:auto;
+	padding-left:0;
+	padding-right:0;
+	background: rgba(0,0,0,0);
+	border: 0px;
+	border-bottom:1px solid #ECB100;
+	border-radius: 0;
+	outline:none;
+}
+		</style>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(),plus.nativeUI.closeWaiting();"></div>
+			<div class="nvtt">
+				<form action="?" method="get" onsubmit="openUrl();return false;">
+				<input id="url" type="url" value="http://weibo.com/dhnetwork"/>
+				</form>
+			</div>
+			<div class="nvbt" onclick="openUrl();">Go</div>
+		</header>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

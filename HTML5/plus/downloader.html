@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var dtask=null;
+function createDownloadTask(){
+	if ( dtask ) {
+		outLine( "下载任务已创建！" );
+		return;
+	}
+/*createDownload:新建下载任务
+Download plus.downloader.createDownload( url, options, completedCB );			
+说明：请求下载管理创建新的下载任务，创建成功则返回Download对象，用于管理下载任务。
+参数：
+url: ( String ) 必选 要下载文件资源地址.要下载文件的url地址，仅支持网络资源地址，支持http或https协议。 允许创建多个相同url地址的下载任务。
+options: ( DownloadOptions ) 可选 下载任务的参数.可通过此参数设置下载任务属性，如保存文件路径、下载优先级等。
+completedCB: ( DownloadCompletedCallback ) 可选 下载任务完成回调函数.当下载任务下载完成时触发，成功或失败都会触发。
+返回值：Download : 新建的下载任务对象
+
+Download对象管理一个下载任务
+1、属性：
+id: 下载任务的标识
+url: 下载文件的地址
+state: 任务的状态
+options: 下载任务的参数
+filename: 下载的文件名称
+downloadedSize: 已完成下载文件的大小
+totalSize: 下载任务文件的总大小
+2、方法：
+abort: 取消下载任务
+addEventListener: 添加下载任务事件监听器
+getAllResponseHeaders: 获取下载请求HTTP响应头部信息
+getResponseHeader: 获取下载请求指定的HTTP响应头部的值
+pause: 暂停下载任务
+resume: 恢复暂停的下载任务
+setRequestHeader: 设置下载请求的HTTP头数据
+start: 开始下载任务
+
+DownloadCompletedCallback：下载任务完成时的回调
+vaoid onCompleted( Download download, Number status ) {
+	// Download file complete code
+}				
+说明：下载任务完成时的回调函数，在下载任务完成时调用。 下载任务失败也将触发此回调。
+参数：
+download : ( Download ) 必选 下载任务对象
+status: ( Number ) 必选 下载结果状态码。HTTP传输协议状态码，如果未获取传输状态则其值则为0，如下载成功其值通常为200。
+
+DownloadOptions:下载任务参数
+说明：在创建下载任务时设置的参数，如设置下载任务使用的HTTP协议类型、优先级等。
+属性：
+method: (String 类型 )网络请求类型.支持http协议的“GET”、“POST”，默认为“GET”请求。
+data: (String 类型 )POST请求时提交的数据.仅在网络请求类型method设置为"POST"时有效，"GET"请求时忽略此数据。
+filename: (String 类型 )下载文件保存的路径.保存文件路径仅支持以"_downloads/"、"_doc/"、"_documents/"开头的字符串。 文件路径以文件后缀名结尾（如"_doc/download/a.doc"）表明指定保存文件目录及名称，以“/”结尾则认为指定保存文件的目录（此时程序自动生成文件名）。 如果指定的文件已经存在，则自动在文件名后面加"(i)"，其中i为数字，如果文件名称后面已经是此格式，则数字i递增，如"download(1).doc"。 默认保存目录为（"_downloads"），并自动生成文件名称。
+priority: (Number 类型 )下载任务的优先级.数值类型，数值越大优先级越高，默认优先级值为0。
+timeout: (Number 类型 )下载任务超时时间.数值类型，单位为s(秒)，默认值为120s。 超时时间为服务器响应请求的时间（不是下载任务完成的总时间），如果设置为0则表示永远不超时。
+retry: (Number 类型 )下载任务重试次数.数值类型，默认为重试3次。
+retryInterval: (Number 类型 )下载任务重试间隔时间.数值类型，单位为s(秒)，默认值为30s。*/
+    var url = "http://snip.qq.com/resources/Snip_V2.0_5771.dmg";
+    var options = {method:"GET"};
+	dtask = plus.downloader.createDownload( url, options );
+/*addEventListener:添加下载任务事件监听器
+void download.addEventListener( type, listener, capture );						
+说明：下载任务添加事件监听器后，当监听的事件发生时触发listener回调。
+参数：
+type: ( DownloadEvent ) 必选 事件类型
+listener: ( DownloadStateChangedCallback ) 可选 事件监听器回调.当监听的事件发生时，触发设置的回调函数。
+capture: ( Boolean ) 可选 事件流处理顺序，暂不支持
+
+DownloadEvent:下载任务事件类型
+常量：
+"statechanged": (String 类型 )下载任务状态变化事件.当下载任务状态发生变化时触发此事件，事件原型参考DownloadStateChangedCallback。
+
+DownloadStateChangedCallback：下载任务状态变化回调
+void onStateChanged( Download download, status ) {
+	// Download state changed code.
+}				
+参数：
+download : ( Download ) 必选 下载任务对象
+status: ( Number ) 必选 下载结果状态码。HTTP传输协议状态码，如果未获取传输状态则其值则为0，如下载成功其值通常为200。
+*/
+    dtask.addEventListener( "statechanged", function(task,status){
+    	if(!dtask){return;}
+/*state:任务的状态
+download.state;						
+说明：DownloadState 类型 只读属性.表示当前下载任务的状态，可通过addEventListener()方法监听statechanged事件监听任务状态的变化。
+
+DownloadState:下载任务状态
+常量：
+undefined: (undefined 类型 )下载任务未开始.通过plus.downloader.createDownload()方法创建下载任务后的初始状态，此时可调用其start()方法开始下载。
+0: (Number 类型 )下载任务开始调度.调用下载任务的start()方法之后处于此状态，此时下载任务处于可调度下载状态。
+1: (Number 类型 )下载任务开始请求.下载任务建立网络连接，发送请求到服务器并等待服务器的响应。
+2: (Number 类型 )下载任务请求已经接收.下载任务网络连接已建立，服务器返回响应，准备传输数据内容。
+3: (Number 类型 )下载任务接收数据.下载任务接收数据，监听statechanged事件时可多次触发此状态。
+4: (Number 类型 )下载任务已完成.下载任务完成数据传输并断开连接，下载成功或失败都会设置为此状态。
+5: (Number 类型 )下载任务已暂停.调用下载任务的pause()方法将任务暂停，此时可调用其resume()方法重新开始下载
+-1: (Number 类型 )枚举任务状态.非下载任务状态，泛指所有下载任务的状态，用于enumerate()和clear()操作时指定作用于所有下载任务。*/
+    	switch(task.state) {
+    		case 1: // 开始
+    			outLine( "开始下载..." );
+    		break;
+    		case 2: // 已连接到服务器
+    			outLine( "链接到服务器..." );
+    		break;
+    		case 3:	// 已接收到数据
+    			outSet( "下载数据更新:" );
+    			outLine( task.downloadedSize+"/"+task.totalSize );
+    		break;
+    		case 4:	// 下载完成
+    			outSet( "下载完成！" );
+    			outLine( task.totalSize );
+    		break;
+    	}
+    } );
+    outSet( "创建下载任务成功！" );
+}
+function startDownloadTask(){
+	if ( !dtask ) {
+		outSet( "请先创建下载任务！" );
+		return;
+	}
+//开始下载任务，如果任务已经处于开始状态则无任何响应。 在创建任务或任务下载失败后调用可重新开始下载。
+	dtask.start();
+}
+// 暂停下载任务
+function pauseDownloadTask(){
+    dtask.pause();
+//暂停下载任务，如果任务已经处于初始状态或暂停状态则无任何响应。 通常在任务已开始后暂停任务。
+    outSet( "暂停下载！" );
+}
+// 恢复下载任务
+function resumeDownloadTask(){
+//继续暂停的下载任务，如果任务处于非暂停状态则无任何响应。
+    dtask.resume();
+    outSet( "恢复下载！" );
+}
+function cancelDownloadTask(){
+//如果任务未完成，则终止下载，并从任务列表中删除。 如下载未完成，将删除已下载的临时文件，如果下载已完成，将不删除已下载的文件。
+	dtask.abort();
+	dtask = null;
+	outSet( "取消下载任务！" );
+}
+function clearDownloadTask(){
+}
+function startAll(){
+	plus.downloader.startAll();
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Downloader</div>
+			<div class="nvbt idoc" onclick="openDoc('Downloader Document','/doc/downloader.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<ul class="dlist">
+				<li class="ditem" onclick="createDownloadTask();">创建下载任务</li>
+				<li class="ditem" onclick="startDownloadTask();">启动下载任务</li>
+				<li class="ditem" onclick="pauseDownloadTask();">暂停下载任务</li>
+				<li class="ditem" onclick="resumeDownloadTask();">恢复下载任务</li>
+				<li class="ditem" onclick="cancelDownloadTask();">取消下载任务</li>
+				<!--<li class="ditem" onclick="clearDownloadTask();">清除所有任务</li>-->
+			</ul>
+		</div>
+		<div id="output">
+Downloader用于管理文件的下载，可从网络下载各种文件，并支持跨域访问。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

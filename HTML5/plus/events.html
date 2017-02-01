@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+if(window.plus){
+	if(document.body){
+		outLine( currentTimeString()+" HTML5 Plus已准备" );
+	}else{
+		document.addEventListener("DOMContentLoaded",function(){
+			outLine( currentTimeString()+" HTML5 Plus已准备" );
+		},false);
+	}
+}else{
+/*"plusready"
+扩展API加载完成事件
+document.addEventListener( "plusready", plusreadyCallback, capture );								
+说明：String 类型.为了保证扩展API的有效调用，所有应用页面都会用到的重要事件。 应用页面显示时需要首先加载扩展和API代码库，当扩展API代码库加载完成时会触发pluseready事件，当设备触发该事件后，用户就可以安全的调用扩展API。 如果程序中打开多个页面，每个都会收到此事件。*/
+	document.addEventListener("plusready",function(){
+		outLine( currentTimeString()+" HTML5 Plus已准备" );
+	}, false );
+}
+/*"pause"运行环境从前台切换到后台事件
+document.addEventListener( "pause", pauseCallback, capture );								
+说明：String 类型.当程序从前台切换到后台时会触发此事件。 若应用需要处理从前台切换到后台的事件行为，可通过注册事件监听器来监听“pause”事件，此事件需要在plusready事件后通过document进行注册。
+*/
+document.addEventListener("pause",function(){
+	outLine( currentTimeString()+" 应用从前台切换到后台" );
+}, false );
+/*"resume":运行环境从后台切换到前台事件				
+document.addEventListener( "resume", resumeCallback, capture );								
+说明：String 类型当程序从后台切换到前台时会触发此事件。 若应用需要处理从后台切换到前台的事件行为，可通过注册事件监听器来监听“resume”事件，此事件需要在plusready事件后通过document进行注册。
+*/
+document.addEventListener("resume",function(){
+	outLine( currentTimeString()+" 应用从后台切换到前台" );
+}, false );
+/*"netchange"设备网络状态变化事件
+document.addEventListener( "netchange", netchangeCallback, capture );								
+说明：String 类型.设备网络状态发生时会触发此事件。 若应用需要处理网络状态变化的事件行为，可通过注册事件监听器来监听“netchange”事件，此事件需要在plusready事件后通过document进行注册。
+*/
+document.addEventListener("netchange",function(){
+    var types = {};
+    types[plus.networkinfo.CONNECTION_UNKNOW] = "未知";
+    types[plus.networkinfo.CONNECTION_NONE] = "未连接网络";
+    types[plus.networkinfo.CONNECTION_ETHERNET] = "有线网络";
+    types[plus.networkinfo.CONNECTION_WIFI] = "WiFi网络";
+    types[plus.networkinfo.CONNECTION_CELL2G] = "2G蜂窝网络";
+    types[plus.networkinfo.CONNECTION_CELL3G] = "3G蜂窝网络";
+    types[plus.networkinfo.CONNECTION_CELL4G] = "4G蜂窝网络";
+	outLine( currentTimeString()+" 切换网络："+types[plus.networkinfo.getCurrentType()] );
+}, false );
+/*"newintent"
+新意图事件				
+document.addEventListener( "newintent", newintentCallback, capture );								
+说明：String 类型.程序从后台被第三方程序调用并传入新意图事件。 此时程序将切换到前台运行，若应用需要处理新意图的事件行为，可通过注册事件监听器来监听“newintent”事件，此事件需要在plusready事件后通过document进行注册。
+*/
+document.addEventListener("newintent",function(){
+	outLine( currentTimeString()+" 从第三方应用启动："+plus.runtime.arguments );
+}, false );
+function currentTimeString(){
+	var d = new Date();
+	return d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+"."+d.getMilliseconds()+" - ";
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Events</div>
+			<div class="nvbt idoc" onclick="openDoc('Events Document','/doc/events.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<p class="des">按“HOME”键切换应用触发“pause”和“resume”事件，在设置中改变网络配置触发“netchange”事件。</p>
+			<br/>
+		</div>
+		<div id="output">
+Events模块管理客户端事件，包括系统事件，如扩展API加载完毕、程序前后台切换等。<br/>
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

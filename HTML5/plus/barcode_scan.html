@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var ws=null,wo=null;
+var scan=null,domready=false;
+// H5 plus事件处理
+function plusReady(){
+	if(ws||!window.plus||!domready){
+		return;
+	}
+	// 获取窗口对象
+	ws=plus.webview.currentWebview();
+/*opener:获取当前Webview窗口的创建者
+WebviewObject wobj.opener();
+说明：创建者为调用plus.webview.open或plus.webview.create方法创建当前窗口的Webview窗口。
+返回值:WebviewObject : 创建当前窗口的Webview窗口对象
+*/
+    wo=ws.opener();//wo为barcode.html窗口
+	// 开始扫描
+	ws.addEventListener('show',function(){
+/*Barcode:条码扫描识别控件对象,Barcode对象表示条码识别控件对象，在窗口中显示条码识别控件，使用此对象可自定义条码识别界面。
+Barcode.constructor(id,filters,styles):创建Barcode对象
+var bc = new plus.barcode.Barcode( id, filters, styles );						
+说明：创建Barcode对象，并指定Barcode对象的在界面中关联div或object标签的id号。
+参数：
+id: ( String ) 必选 条码识别控件在Webview窗口的DOM节点的id值.为了定义条码识别控件在Webview窗口中的位置，需要指定控件定位标签（div或objecct）的id号，系统将根据此id号来确定条码识别控件的大小及位置。
+filters: ( Array[ Number ] ) 可选 要识别的条码类型过滤器，为条码类型常量数组.条码识别引擎可支持多种二维码及一维码类型，默认情况支持QR、EAN13、EAN8三种类型。 可通过此参数设置需要支持的更多条码类型（注意：设置支持的条码类型越多，扫描识别效率将会降低）。
+styles: ( BarcodeStyles ) 可选 条码识别控件样式.可定义条码识别控件的样式，如扫描框、扫描条的颜色等。
+返回值：Barcode 
+
+BarcodeStyles：条码扫描控件样式参数
+说明：设置条码识别控件的样式，如扫描框、扫描条的颜色等。
+属性：frameColor: (String 类型 )扫描框颜色。颜色值支持(参考CSS颜色规范)：颜色名称(参考CSS Color Names)/十六进制值/rgb值/rgba值，默认值为红色。
+scanbarColor: (String 类型 )扫描条颜色。颜色值支持(参考CSS颜色规范)：颜色名称(参考CSS Color Names)/十六进制值/rgb值/rgba值，默认值为红色。
+background: (String 类型 )条码识别控件背景颜色。颜色值支持(参考CSS颜色规范)：颜色名称(参考CSS Color Names)/十六进制值/rgb值，默认值为红色。
+*/
+		scan=new plus.barcode.Barcode('bcid');
+	    scan.onmarked=onmarked;//条码识别成功事件
+/*start:开始条码识别
+void bc.start( options );						
+说明：开始调用系统摄像头获取图片数据进行扫描识别，当识别出条码数据时通过onmarked回调函数返回。
+参数：optons: ( BarcodeOptions ) 可选 条码识别的参数.通过此参数可设置是否获取扫描成功的条码截图数据等。
+
+BarcodeOptions:条码识别控件扫描参数
+conserve: (Boolean 类型 )是否保存成功扫描到的条码数据时的截图.如果设置为true则在成功扫描到条码数据时将图片保存，并通过onmarked回调函数的file参数返回保存文件的路径。默认值为false，不保存图片。
+filename: (String 类型 )保存成功扫描到的条码数据时的图片路径.可通过此参数设置保存截图的路径或名称，如果设置图片文件名称则必须指定文件的后缀名（必须是.png），否则认为是指定目录，文件名称则自动生成。
+vibrate: (Boolean 类型 )成功扫描到条码数据时是否需要震动提醒.如果设置为true则在成功扫描到条码数据时震动设备，false则不震动。默认值为true。
+sound: (String 类型 )成功扫描到条码数据时播放的提示音类型.可取值： "none" - 不播放提示音； "default" - 播放默认提示音（5+引擎内置）。 默认值为"default"。*/
+	    scan.start({conserve:true,filename:"_doc/barcode/"});
+	});
+	// 显示页面并关闭等待框
+    ws.show("pop-in");//必须添加显示，虽然在common.js中已经显示，但是这里必须还要显示，不然不会显示。
+    wo.evalJS("closeWaiting()");//关闭等待窗口
+}
+if(window.plus){
+	plusReady();
+}else{
+	document.addEventListener("plusready",plusReady,false);
+}
+// 监听DOMContentLoaded事件
+document.addEventListener("DOMContentLoaded",function(){
+	domready=true;
+	plusReady();
+},false);
+// 二维码扫描成功
+/*条码识别成功的回调函数
+void BarcodeSuccessCallback ( type, code, file ) {
+	// Barcode success code
+}				
+说明：当获取条码识别成功时的回调函数，用于返回识别成功的条码数据。
+参数：
+type: ( Number ) 必选 识别到的条码类型.Number类型的值，与Barcode对象定义的条码类型常量一致。
+code: ( String ) 必选 识别到的条码数据.从条码图片中扫描出的数据内容，字符串采用UTF8编码格式。
+file: ( String ) 可选 识别到的条码图片文件路径.识别到的条码数据图片，为png格式文件，为设置为不保存图片，则返回undefined。*/
+function onmarked(type,result,file){
+    switch(type){
+    	case plus.barcode.QR:
+    	type = "QR";
+    	break;
+    	case plus.barcode.EAN13:
+    	type = "EAN13";
+    	break;
+    	case plus.barcode.EAN8:
+    	type = "EAN8";
+    	break;
+    	default:
+    	type = "其它"+type;
+    	break;
+    }
+    result = result.replace(/\n/g, '');
+/*evalJS:在Webview窗口中执行JS脚本
+void wobj.evalJS( js );					
+说明：将JS脚本发送到Webview窗口中运行，可用于实现Webview窗口间的数据通讯。*/
+    wo.evalJS("scaned('"+ type +"','"+ result +"','"+ file +"');");//在barcode.html中运行scaned()
+    back();
+}
+// 从相册中选择二维码图片 
+function scanPicture() {
+    plus.gallery.pick(function(path){
+/*scan:通过图片扫描条码数据
+void plus.barcode.scan( path, successCB, errorCB, filters );				
+说明：直接通过图片扫描条码数据，成功扫描到条码数据后通过successCallback回调返回，失败则通过errorCallback回调返回。
+参数：path: ( String ) 必选 扫描的图片的地址.图片的地址必须是本地文件地址，如URLType类型（如以"_www"、"_doc"、"_documents"、"_downloads"开头的相对URL路径）或者系统绝对路径。
+successCB: ( BarcodeSuccessCallback ) 必选 扫描条码码图片成功的回调函数，返回条码数据
+errorCB: ( BarcodeErrorCallback ) 可选 扫描条码图片失败的回调函数，返回错误信息
+filters: ( Array ) 可选 要识别的条码类型过滤器，为条码类型常量数组.条码识别引擎可支持多种二维码及一维码类型，默认情况支持QR、EAN13、EAN8三种类型。 可通过此参数设置需要支持的更多条码类型（注意：设置支持的条码类型越多，扫描识别效率将会降低）。*/
+	    plus.barcode.scan(path,onmarked,function(error){
+			plus.nativeUI.alert( "无法识别此图片" );
+		});
+    },function(err){
+        plus.nativeUI.alert("Failed: "+err.message);
+    });
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+		<style type="text/css">
+#bcid {
+	width: 100%;
+	position: absolute;
+	top: 0px;
+	bottom: 44px;
+	text-align: center;
+}
+.tip {
+	color: #FFFFFF;
+	font-weight: bold;
+	text-shadow: 0px -1px #103E5C;
+}
+footer {
+	width: 100%;
+	height: 44px;
+	position: absolute;
+	bottom: 0px;
+	line-height: 44px;
+	text-align: center;
+	color: #FFF;
+}
+.fbt {
+	width: 50%;
+	height: 100%;
+	background-color: #FFCC33;
+	float: left;
+}
+.fbt:active {
+  	-webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.5);
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.5);
+}
+		</style>
+	</head>
+	<body style="background-color: #000000;">
+		<div id="bcid">
+			<div style="height:40%"></div>
+			<p class="tip">...载入中...</p>
+		</div>
+		<footer>
+			<div class="fbt" onclick="back();">取　 消</div>
+			<div class="fbt" onclick="scanPicture();">从相册选择二维码</div>
+		</footer>
+	</body>
+</html>

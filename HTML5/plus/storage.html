@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+function setItemFun( id ) {
+	//循环插入100调数据
+	var dataNum = new Number(id);
+	for ( var i=0; i<dataNum; i++ ) {
+/*setItem:修改或添加键值(key-value)对数据到应用数据存储中
+void plus.storage.setItem(key, value);
+说明：如果设置的键在应用数据存储中已经存在，更新存储的键值。 存储的键和值没有容量限制，但过多的数据量会导致效率降低，建议单个键值数据不要超过10Kb。
+参数：
+key: ( DOMString ) 必选 存储的键值
+value: ( DOMString ) 必选 存储的内容*/
+		plus.storage.setItem( "key"+i, "value"+i );
+	}
+	var length = getLengthFun();
+	outSet( "数据存储成功，存储了"+length+"条数据；" );
+}
+function getLengthFun(){
+/*getLength:获取应用存储区中保存的键值对的个数
+var foo = plus.storage.getLength();
+返回值：Number : 键值对的个数*/
+	return plus.storage.getLength();
+}
+function getAllItem(){
+	outSet( "获取数据：" );
+	var itemLength = getLengthFun();
+	for ( var i=0; i < itemLength; i++ ) {
+/*key:获取键值对中指定索引值的key值
+var foo = plus.storage.key(index);			
+参数：index: ( Number ) 必选 存储键值的索引*/
+		var key = plus.storage.key(i);
+/*getItem:通过键(key)检索获取应用存储的值
+var foo = plus.storage.getItem(key);			
+参数：key: ( DOMString ) 必选 存储的键值
+返回值：DOMString : 键(key)对应应用存储的值，如果没有保存则返回null。*/
+	  	var value = plus.storage.getItem(key);
+	  	outLine( "key:"+key+"-->value:"+value );
+	};
+}
+/*removeItem:通过key值删除键值对存储的数据
+void plus.storage.removeItem(key);				
+参数：key: ( DOMString ) 必选 存储的键值
+返回值：void : 无*/
+function delItem() {
+	outSet( "删除部分数据：" );
+	var itemLength = getLengthFun();
+	for (var i=0; i < itemLength; i+=2) {
+		var key = plus.storage.key(i);
+	  	plus.storage.removeItem(key);
+	};
+	var itemNo = getLengthFun();
+	outLine( "移除了"+(itemLength-itemNo)+"条数据" );
+}
+function clearAllItem(){
+	plus.storage.clear();//清除应用所有的键值对存储数据
+	var num = getLengthFun();
+	if ( num == 0 ) {
+		outSet( "storage数据清除成功！" );
+	}else{
+		outSet( "storage数据清除失败！" );
+	}
+}
+function modifyTopFive(){
+	outSet( "修改前的数据是：" );
+	for (var i=0; i < 5; i++) {
+		var key = plus.storage.key(i),value = plus.storage.getItem(key);
+	  	outLine( "key:"+key+"-->value:"+value );
+		plus.storage.setItem( key, "新数据值>>"+i );
+	};
+	outLine( "修改后的数据是：" );
+	for (var i=0; i < 5; i++) {
+		var key = plus.storage.key(i),value = plus.storage.getItem(key);
+		outLine( "key:"+key+"-->value:"+value );
+	};
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Storage</div>
+			<div class="nvbt idoc" onclick="openDoc('Storage Document','/doc/storage.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<ul class="dlist">
+	            <li class="ditem" onclick="setItemFun('11')">插入11条数据</li>
+	            <li class="ditem" onclick="getAllItem()">查询所有数据</li>
+	            <li class="ditem" onclick="modifyTopFive()">修改前五条数据的内容</li>
+	            <li class="ditem" onclick="delItem()">删除部分Item</li>
+	            <li class="ditem" onclick="clearAllItem()">清除所有内容</li>
+			</ul>
+		</div>
+		<div id="output">
+Storage管理本地数据存储，用于保存应用的全局数据，可在程序内部跨页面(跨域)共享数据。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

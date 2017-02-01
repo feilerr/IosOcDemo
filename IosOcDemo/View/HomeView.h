@@ -11,8 +11,7 @@
 
 typedef NSString *(^AddNum)(int a,int b);
 
-@interface HomeView : BaseView
+@interface HomeView : BaseView<UIAlertViewDelegate>
 
-- (NSString *)getComputer:(AddNum)addNum;
 
 @end

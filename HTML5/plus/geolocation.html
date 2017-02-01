@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var watchId;
+function geoInf( position ) {
+/*Position：JSON对象，设备位置信息数据
+属性：
+coords: (Coordinates 类型 )地理坐标信息，包括经纬度、海拔、速度等信息
+coordsType: (String 类型 )获取到地理坐标信息的坐标系类型。可取以下坐标系类型： “gps”：表示WGS-84坐标系； “gcj02”：表示国测局经纬度坐标系； “bd09”：表示百度墨卡托坐标系； “bd09ll”：表示百度经纬度坐标系。
+timestamp: (Number 类型 )获取到地理坐标的时间戳信息。时间戳值为从1970年1月1日至今的毫秒数。
+address: (Address 类型 )获取到地理位置对应的地址信息。获取地址信息需要连接到服务器进行解析，所以会消耗更多的资源，如果不需要获取地址信息可通过设置PositionOptions参数的geocode属性值为false避免获取地址信息。 如果没有获取到地址信息则返回undefined。
+addresses: (String 类型 )获取完整地址描述信息。如果没有获取到地址信息则返回undefined。
+
+Address：JSON对象，地址信息
+属性：
+country: (String 类型 )国家。如“中国”，如果无法获取此信息则返回undefined。
+province: (String 类型 )省份名称。如“北京市”，如果无法获取此信息则返回undefined。
+city: (String 类型 )城市名称。如“北京市”，如果无法获取此信息则返回undefined。
+district: (String 类型 )区（县）名称。如“朝阳区”，如果无法获取此信息则返回undefined。
+street: (String 类型 )街道和门牌信息。如“酒仙桥路”，如果无法获取此信息则返回undefined。
+poiName: (String 类型 )POI信息。如“电子城．国际电子总部”，如果无法获取此信息则返回undefined。
+postalCode: (String 类型 )邮政编码。如“100016”，如果无法获取此信息则返回undefined。
+cityCode: (String 类型 )城市代码。如“010”，如果无法获取此信息则返回undefined。
+* */
+	var str = "";
+	str += "地址："+position.addresses+"\n";//获取地址信息
+	str += "坐标类型："+position.coordsType+"\n";
+	var timeflag = position.timestamp;//获取到地理位置信息的时间戳；一个毫秒数；
+	str += "时间戳："+timeflag+"\n";
+	var codns = position.coords;//获取地理坐标信息；
+/*Coordinates:JSON对象，地理坐标信息
+属性：
+latitude: (Number 类型 )坐标纬度值.数据类型对象，地理坐标中的纬度值。
+longitude: (Number 类型 )坐标经度值.数据类型对象，地理坐标中的经度值。
+altitude: (Number 类型 )海拔信息.数据类型对象，如果无法获取此信息，则此值为空（null）。
+accuracy: (Number 类型 )地理坐标信息的精确度信息.数据类型对象，单位为米，其有效值必须大于0。
+altitudeAccuracy: (Number 类型 )海拔的精确度信息.数据类型对象，单位为米，其有效值必须大于0。如果无法获取海拔信息，则此值为空（null）。
+heading: (Number 类型 )表示设备移动的方向.数据类型对象，范围为0到360，表示相对于正北方向的角度。如果无法获取此信息，则此值为空（null）。如果设备没有移动则此值为NaN。
+speed: (Number 类型 )表示设备移动的速度.数据类型对象，单位为米每秒（m/s），其有效值必须大于0。如果无法获取速度信息，则此值为空（null）。*/
+	var lat = codns.latitude;//获取到当前位置的纬度；
+	str += "纬度："+lat+"\n";
+	var longt = codns.longitude;//获取到当前位置的经度
+	str += "经度："+longt+"\n";
+	var alt = codns.altitude;//获取到当前位置的海拔信息；
+	str += "海拔："+alt+"\n";
+	var accu = codns.accuracy;//地理坐标信息精确度信息；
+	str += "精确度："+accu+"\n";
+	var altAcc = codns.altitudeAccuracy;//获取海拔信息的精确度；
+	str += "海拔精确度："+altAcc+"\n";
+	var head = codns.heading;//获取设备的移动方向；
+	str += "移动方向："+head+"\n";
+	var sped = codns.speed;//获取设备的移动速度；
+	str += "移动速度："+sped;
+	console.log(JSON.stringify(position));
+	outLine( str );
+}
+/*getCurrentPosition:获取当前设备位置信息
+void plus.geolocation.getCurrentPosition( successCB, errorCB, option );
+说明：位置信息将通过手机GPS设备或其它信息如IP地址、移动网络信号获取，由于获取位置信息可能需要较长的时间，当成功获取位置信息后将通过successCB回调函数返回。
+参数：
+successCB: ( GeolocationSuccessCallback ) 必选 获取设备位置信息成功回调函数
+errorCB: ( GeolocationErrorCallback ) 可选 获取设备位置信息失败回调函数
+option: ( PositionOptions ) 可选 获取设备位置信息的参数
+
+GeolocationSuccessCallback：获取设备位置信息成功的回调函数
+void onSuccess( position ) {
+	// Get Position code.
+}				
+参数：
+position: ( Position ) 必选 设备的地理位置信息，参考Position
+
+PositionOptions:JSON对象，监听设备位置信息参数
+属性：
+enableHighAccuracy: (Boolean 类型 )是否高精确度获取位置信息.高精度获取表示需要使用更多的系统资源，默认值为false。
+timeout: (Number 类型 )获取位置信息的超时时间.单位为毫秒（ms），默认值为不超时。如果在指定的时间内没有获取到位置信息则触发错误回调函数。
+maximumAge: (Number 类型 )获取位置信息的缓存时间.单位为毫秒（ms），默认值为0（立即更新获取）。如果设备缓存的位置信息超过指定的缓存时间，将重新更新位置信息后再返回。
+provider: (String 类型 )优先使用的定位模块.可取以下供应者： "system"：表示系统定位模块，支持wgs84坐标系； "baidu"：表示百度定位模块，支持gcj02/bd09/bd09ll坐标系； "amap"：表示高德定位模板，支持gcj02坐标系。 默认值按以下优先顺序获取（amap>baidu>system），若指定的provider不存在或无效则返回错误回调。 注意：百度/高德定位模块需要配置百度/高德地图相关参数才能正常使用。
+coordsType: (String 类型 )指定获取的定位数据坐标系类型.可取以下坐标系类型： “wgs84”：表示WGS-84坐标系； “gcj02”：表示国测局经纬度坐标系； “bd09”：表示百度墨卡托坐标系； “bd09ll”：表示百度经纬度坐标系； provider为“system”时，默认使用“wgs84”类型；provider为“baidu”是，默认使用“bd09ll”类型。 如果设置的坐标系类型provider不支持，则返回错误。
+geocode: (Boolean 类型 )是否解析地址信息.解析的地址信息保存到Position对象的address、addresses属性中，true表示解析地址信息，false表示不解析地址信息，返回的Position对象的address、addresses属性值为undefined，默认值为true。 如果解析地址信息失败则返回的Position对象的address、addresses属性值为null。
+
+Position：JSON对象，设备位置信息数据
+属性：
+coords: (Coordinates 类型 )地理坐标信息，包括经纬度、海拔、速度等信息
+coordsType: (String 类型 )获取到地理坐标信息的坐标系类型。可取以下坐标系类型： “gps”：表示WGS-84坐标系； “gcj02”：表示国测局经纬度坐标系； “bd09”：表示百度墨卡托坐标系； “bd09ll”：表示百度经纬度坐标系。
+timestamp: (Number 类型 )获取到地理坐标的时间戳信息。时间戳值为从1970年1月1日至今的毫秒数。
+address: (Address 类型 )获取到地理位置对应的地址信息。获取地址信息需要连接到服务器进行解析，所以会消耗更多的资源，如果不需要获取地址信息可通过设置PositionOptions参数的geocode属性值为false避免获取地址信息。 如果没有获取到地址信息则返回undefined。
+addresses: (String 类型 )获取完整地址描述信息。如果没有获取到地址信息则返回undefined。
+* */
+function getPos() {
+	outSet( "获取位置信息:" );
+	plus.geolocation.getCurrentPosition( geoInf, function ( e ) {
+		outSet( "获取位置信息失败："+e.message );
+	}, {geocode:false} );
+}
+function watchPos() {
+	if ( watchId ) {
+		return;
+	}
+/*watchPosition:监听设备位置变化信息
+Number plus.geolocation.watchPosition( successCB, errorCB, option );				
+说明：位置信息将通过手机GPS设备或其它信息如IP地址、移动网络信号获取。当位置信息更新后将通过successCB回调函数返回。位置信息获取失败则调用回调函数errorCB。
+参数：
+successCB: ( GeolocationSuccessCallback ) 必选 设备位置信息更新成功回调函数
+errorCB: ( GeolocationErrorCallback ) 可选 获取设备位置信息失败回调函数
+option: ( PositionOptions ) 可选 监听设备位置信息的参数
+
+PositionOptions:JSON对象，监听设备位置信息参数
+属性：
+enableHighAccuracy: (Boolean 类型 )是否高精确度获取位置信息.高精度获取表示需要使用更多的系统资源，默认值为false。
+timeout: (Number 类型 )获取位置信息的超时时间.单位为毫秒（ms），默认值为不超时。如果在指定的时间内没有获取到位置信息则触发错误回调函数。
+maximumAge: (Number 类型 )获取位置信息的缓存时间.单位为毫秒（ms），默认值为0（立即更新获取）。如果设备缓存的位置信息超过指定的缓存时间，将重新更新位置信息后再返回。
+provider: (String 类型 )优先使用的定位模块.可取以下供应者： "system"：表示系统定位模块，支持wgs84坐标系； "baidu"：表示百度定位模块，支持gcj02/bd09/bd09ll坐标系； "amap"：表示高德定位模板，支持gcj02坐标系。 默认值按以下优先顺序获取（amap>baidu>system），若指定的provider不存在或无效则返回错误回调。 注意：百度/高德定位模块需要配置百度/高德地图相关参数才能正常使用。
+coordsType: (String 类型 )指定获取的定位数据坐标系类型.可取以下坐标系类型： “wgs84”：表示WGS-84坐标系； “gcj02”：表示国测局经纬度坐标系； “bd09”：表示百度墨卡托坐标系； “bd09ll”：表示百度经纬度坐标系； provider为“system”时，默认使用“wgs84”类型；provider为“baidu”是，默认使用“bd09ll”类型。 如果设置的坐标系类型provider不支持，则返回错误。
+geocode: (Boolean 类型 )是否解析地址信息.解析的地址信息保存到Position对象的address、addresses属性中，true表示解析地址信息，false表示不解析地址信息，返回的Position对象的address、addresses属性值为undefined，默认值为true。 如果解析地址信息失败则返回的Position对象的address、addresses属性值为null。
+*/
+	watchId = plus.geolocation.watchPosition( function ( p ) {
+		outSet( "监听位置变化信息:" );
+		geoInf( p );
+	}, function ( e ) {
+		outSet( "监听位置变化信息失败："+e.message );
+	}, {geocode:false} );
+}
+function clearWatch() {
+/*clearWatch:关闭监听设备位置信息
+void plus.geolocation.clearWatch( watchId );				
+参数：watchId: ( Number ) 必选 需要取消的位置监听器标识，调用watchPosition方法的返回值。*/
+	if ( watchId ) {
+		outSet( "停止监听位置变化信息" );
+		plus.geolocation.clearWatch( watchId );
+		watchId = null;
+	}
+}
+// 通过定位模块获取位置信息
+function getGeocode(){
+	outSet( "获取定位位置信息:" );
+	plus.geolocation.getCurrentPosition( geoInf, function ( e ) {
+		outSet( "获取定位位置信息失败："+e.message );
+	},{geocode:true,provider:'amap'});//高德地图
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Geolocation</div>
+			<div class="nvbt idoc" onclick="openDoc('Geolocation Document','/doc/geolocation.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<ul class="dlist">
+				<li class="ditem" onclick="getPos()">获取设备位置信息</li>
+				<li class="ditem" onclick="watchPos()">监听设备位置信息</li>
+				<li class="ditem" onclick="clearWatch()">停止监听</li>
+			</ul>
+			<br/>
+			<div class="button" onclick="getGeocode()">
+				获取定位信息
+			</div>
+			<p class="des">
+				定位模块需要配置高德或百度地图相关参数才能正常使用。
+			</p>
+		</div>
+		<div id="output">
+Geolocation可获取设备位置信息，包括经度、纬度、高度等信息。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

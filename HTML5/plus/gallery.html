@@ -1,0 +1,227 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+function plusReady(){
+	// 用户侧滑返回时关闭显示的图片
+	plus.webview.currentWebview().addEventListener( "popGesture", function(e){
+		if(e.type=="start"){
+			closeImg();
+		}
+	}, false );
+}
+document.addEventListener('plusready',plusReady,false);
+
+function getImage(){
+	var cmr = plus.camera.getCamera();
+	cmr.captureImage( function ( path ) {
+/*		save:保存文件到系统相册中
+		    void plus.gallery.save( path, successCB, errorCB );
+		说明：保存文件到系统相册中。 每次仅能保存一个文件，支持图片类型（jpg/jpeg、png、bmp等格式）和
+		视频文件（3gp、mov等格式）。 若保存的文件系统不支持，则通过errorCB返回错误信息。*/
+		plus.gallery.save( path );
+		outSet( "照片已成功保存到系统相册" );
+	}, function ( e ) {
+		outSet( "取消拍照" );
+	}, {filename:"_doc/gallery/",index:1} );
+}
+function galleryImg() {
+	// 从相册中选择图片
+	outSet("从相册中选择图片:");
+/*	pick:从系统相册选择文件（图片或视频）
+         void plus.gallery.pick( successCB, errorCB, option );
+    succesCB: ( GalleryPickSuccessCallback | GalleryMultiplePickSuccessCallback ) 必选 从系统
+               相册中选择文件完成后的回调函数.单选时通过GalleryPickSuccessCallback回调函数返回选择
+                的图片或视频文件路径，多选时通过GalleryMultiplePickSuccessCallback回调函数返回图片或视频文件路径。
+    option: ( GalleryOptions ) 可选 设置选择文件的参数*/
+    plus.gallery.pick( function(path){
+    	outLine(path);
+        //showImg( path );
+        //createItem(path);
+    }, function ( e ) {
+    	outSet( "取消选择图片" );
+    }, {filter:"image"} );
+/*    GalleryOptions:JSON对象，从相册中选择文件的参数
+    (1)animation: (Boolean 类型 )是否显示系统相册文件选择界面的动画.是否显示系统相册文件选择界面的动画，
+                  可取值true、false，默认值为true。
+    (2)filename: (String 类型 )选择文件保存的路径.某些系统不能直接使用系统相册的路径，这时需要将选择的文
+                  件保存到应用可访问的目录中，可通过此参数设置保存文件的路径。 如果路径中包括文件后缀名称，
+                   则表明指定文件路径及名称，否则仅指定文件保存目录，文件名称自动生成。
+    (3)filter: (GalleryFilter 类型 )相册中选择文件类型过滤器.系统相册选择器中可选择的文件类型，可设置为仅
+                 选择图片文件（“image”）、视频文件（“video”）或所有文件（“none”），默认值为“image”。
+    (4)maximum: (Number 类型 )最多选择的图片数量.仅在支持多选时有效，取值范围为1到Infinity，默认值为Infinity，
+                 即不限制选择的图片数。 如果设置的值非法则使用默认值Infinity。
+    (5)multiple: (Boolean 类型 )是否支持多选图片.可从系统相册中选择多张图片，选择图片后通过
+       GalleryMultiplePickSuccessCallback回调返回选择的图片.
+    (6)onmaxed: (Function 类型 )超过最多选择图片数量事件.使用相册多选图片时，可通过maximum属性设置最多选择的图片
+                 数量，当用户操作选择的数量大于此时触发此事件。
+    (7)popover: (PopPosition 类型 )相册选择界面弹出指示区域
+    (8)selected: (Array[ String ] 类型 )已选择的图片路径列表.仅在多图片选择时生效，相册选择界面将选中指定的图片路
+                径列表。 如果指定的路径无效，则忽略此项；如果指定的路径数超过maximum属性指定的最大选择数目则超出的
+                 图片不选中。
+    (9)system: (Boolean 类型 )是否使用系统相册文件选择界面.设置为true时，如果系统自带相册选择控件时则优先使用，否则
+               使用5+统一相册选择控件；设置为false则不使用系统自带相册选择控件，直接使用5+统一相册选择界面。
+                默认值为true。*/
+}
+function galleryImgs(){
+	// 从相册中选择图片
+	outSet("从相册中选择多张图片:");
+    plus.gallery.pick( function(e){
+    	for(var i in e.files){
+	    	outLine(e.files[i]);
+    	}
+    }, function ( e ) {
+    	outSet( "取消选择图片" );
+    },{filter:"image",multiple:true,system:false});
+}
+function galleryImgsMaximum(){
+	// 从相册中选择图片
+	outSet("从相册中选择多张图片(限定最多选择3张):");
+    plus.gallery.pick( function(e){
+    	for(var i in e.files){
+	    	outLine(e.files[i]);
+    	}
+    }, function ( e ) {
+    	outSet( "取消选择图片" );
+    },{filter:"image",multiple:true,maximum:3,system:false,onmaxed:function(){
+		plus.nativeUI.alert('最多只能选择3张图片');
+    }});// 最多选择3张图片
+}
+var lfs=null;// 保留上次选择图片列表
+function galleryImgsSelected(){
+	// 从相册中选择图片
+	outSet("从相册中多选图片(保存勾选记录):");
+    plus.gallery.pick( function(e){
+    	lfs=e.files;
+    	for(var i in e.files){
+	    	outLine(e.files[i]);
+    	}
+    }, function ( e ) {
+    	outSet( "取消选择图片" );
+    },{filter:"image",multiple:true,maximum:3,selected:lfs,system:false,onmaxed:function(){
+		plus.nativeUI.alert('最多只能选择3张图片');
+    }});// 最多选择3张图片
+}
+function showImg( url ){
+	// 兼容以“file:”开头的情况
+	if(0!=url.indexOf("file://")){
+		url="file://"+url;
+	}
+	var _body_ = document.body;
+	var _div_ = document.createElement("div");
+	_div_.style.top="0px";
+	_div_.style.left="0px";
+	_div_.style.height="100%";
+	_div_.style.width="100%";
+	_div_.style.zIndex="99999";
+	_div_.style.position="fixed";
+	_div_.style.background="#ffffff";
+	_div_.id="imgShow";
+	_div_.onclick=closeImg;
+	var _img_=document.createElement("img");
+	_img_.src=url;
+	_img_.style.width="100%";
+	_body_.appendChild(_div_);
+	_div_.appendChild(_img_);
+}
+function closeImg(){
+	var trnode=document.getElementById("imgShow");
+	trnode&&trnode.parentNode.removeChild(trnode);
+}
+
+var list=null,first=null;
+document.addEventListener("DOMContentLoaded",function(){
+	list=document.getElementById("list");
+	first=document.getElementById("empty");
+},false);
+// 添加列表项
+function createItem(path) {
+	var li = document.createElement("li");
+	li.className = "ditem";
+	li.innerHTML = '<span class="iplay"><font class="aname"></font><br/><font class="ainf"></font></span>';
+	li.setAttribute( "onclick", "displayMedia(this);" );
+	list.insertBefore( li, first.nextSibling );
+	var i = path.lastIndexOf("/");
+	if(i<0){
+		i = path.lastIndexOf("\\");
+	}
+	li.querySelector(".aname").innerText = path.substr(i+1);
+	li.querySelector(".ainf").innerText = path;
+	li.path = path;
+	// 设置空项不可见
+	first.style.display = "none";
+}
+// 清除列表记录
+function cleanList() {
+	list.innerHTML = '<li id="empty" class="ditem-empty">无记录</li>';
+	empty = document.getElementById( "empty" );
+	// 删除音频文件
+	outSet( "清空选择照片记录：" );
+}
+// 返回后关闭图片显示
+var _back=window.back;
+window.back=function(){
+	closeImg();
+	_back();
+};
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+		<style type="text/css">
+.aname {
+	font-size: 16px;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+.ainf {
+	font-size: 12px;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+.iplay {
+	display: block;
+	background: no-repeat right center url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABYCAYAAAADWlKCAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAKwwAACsMBNCkkqwAAABZ0RVh0Q3JlYXRpb24gVGltZQAwOS8xMi8xM5w+I3MAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzVxteM2AAAD9UlEQVR4nO2b3XETMRRGDwzvoYOkg5hRAVkqiKmAdIA7wHSQVECoALsC1gXciV0BTge4gvCwgnHk9d/+WF8m97ztxrlXs8fS1Urym6enJxwd3uZugPMcFyKGCxHDhYjhQsRwIWK4EDFciBguRAwXIoYLEcOFiOFCxHAhYrgQMVyIGC5EDBcihgsRw4WI4ULEcCFiuBAx3uVuwDGY2XtgCBTAALjc8tEFMAdKYBJC+HOK9nXBm5dwUM7MCmAEXDcMMQVuQwhlV23qC2khZjYAboGrjkLOgFEIYd5RvM6RrSFmdgs80J0MYqyHGFsSuR4S60TJ9vrwCEziZ+YhhGXy/xdU9aWgqjfnW+IsgEKtvkgJiUPUPfUyZsD42DoQ68+Y+p62AG6UhjAZITt6xopq3L9vGf+Gqh6dJX+S6ilKNaRkU8YCGLSVARBjDGLMdS5jbgkkhMQiWyejSGtEG2KsghopKoU++5AV68ZDcrvXYWTH8Pghdz1R6CHpN3MFDPsc02PsYcy1qy0nJ6uQOANKZz+jfcOUmd3H6W1jYo5RcvsqtikbuXtI+kBmBxbwz8DczMZtksdcsz1tOinZhMRxPF2bGh8R4gz4amZLMxu2aEqa8zq2LQs5e0j6EB8bLv6dAz/NrGwyjMWcj3vadjJyCimS60nLeFfAbzO7bfANT3MXLdvSmJxCBsl12VHcL8AyvpkfSpo7bdvJyCkkfQfocv5/Bnw3s/mBs6Y097aFzd7JPcv6T5dv5GtcAr/2TZN7yt0IGSE908k0+RS8FiEvhhd1yKEFUw5YAVBApoe0XQrZwgL4GEIY7pLRU+5G5OwhC57PZgbAsqPYK6rdxUMXC9Npbro8fzJy9pB0qll0FPcOuDhCRl3ubEvwOYWUyXXb5YoZ1X7GqMHSfZq7bNmWxuQUki5XnDdc+n4EPoUQiiabSzFnejKl7TJOY7IJid/iaXJ7fESIFfCNas+9zQNMc05zHnjIPctKx/mrA9egflCJGLd5eDFXukGWdddQYU+95PlDWVE97GXPeS+oivf6saBZCKHoM+8+cvcQ2NyhOwMmfW4SxdgTNs9oZd0tBAEhsRDfJbcvgbIPKTtOnNzlPnECAkPWP8xsTv3ZrJ1v2UfmuKDqGRt5QgjZ9kDWyd5D1iioP1U4P3KzqZYYY5v0om38rpDpIeCHrUFMCPjPEeSE/COetf3SU/i7EEL2GVUdSjXkGfGBfWDzIFsb/q93dRizU2R7yDr+o09R/GfRzsmRrSGvFRcihgsRw4WI4ULEcCFiuBAxXIgYLkQMFyKGCxHDhYjhQsRwIWK4EDFciBguRAwXIoYLEcOFiOFCxHAhYrgQMf4CVuqCm+17t3sAAAAASUVORK5CYII=);
+	background-size: 50px 44px;
+	-ms-touch-action: auto;
+}
+		</style>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Gallery</div>
+			<div class="nvbt idoc" onclick="openDoc('Gallery Document','/doc/gallery.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<div class="button" onclick="getImage()">拍照并保存到相册</div>
+			<div class="button" onclick="galleryImg()">从相册中单选图片</div>
+			<div class="button" onclick="galleryImgs()">从相册中多选图片</div>
+			<div class="button" onclick="galleryImgsMaximum()">从相册中多选图片(最多三张)</div>
+			<div class="button" onclick="galleryImgsSelected()">从相册中多选图片(保存勾选记录)</div>
+			<br/>
+			<!-- Image list -->
+			<!--<ul id="list" class="dlist" style="text-align:left;">
+				<li id="empty" class="ditem-empty">无记录</li>
+				<li class="ditem" onclick="displayMedia(this);">
+					<span class="iplay">
+						<div class="aname">.BjMobileService_bmcc168.apk.png</div><br>
+						<div class="ainf">file:///storage/sdcard0/QQBrowser/安装包/.BjMobileService_bmcc168.apk.png</div>
+					</span>
+				</li>
+			</ul>
+			<br/>
+			<div class="button button-waring" onclick="cleanList()">清空列表</div>
+			<br/>-->
+		</div>
+		<div id="output">
+Gallery模块管理系统相册，如从相册中选择图片或视频文件、保存图片或视频文件到相册等功能。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

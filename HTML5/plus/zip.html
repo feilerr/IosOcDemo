@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var zip = "_doc/zip/index.zip",
+unzip = "_doc/zip/index/";
+function doCompress(){
+/*compress:压缩生成Zip文件
+void plus.zip.compress(src, zipfile, successCB, errorCB);				
+参数：
+src: ( String ) 可选 要压缩的源文件路径，支持文件路径或目录
+zipfile: ( String ) 可选 压缩后保存的Zip文件路径
+successCB: ( ZipSuccessCallback ) 必选 压缩Zip文件操作成功回调，在压缩操作成功时调用
+errorCB: ( ZipErrorCallback ) 必选 压缩Zip文件操作失败回调，在压缩操作失败时调用*/
+	plus.zip.compress( "_www/index.html", zip, function(){
+		outLine( "操作成功！保存路径为："+zip );
+	}, function(e){
+		outLine( "操作失败："+e.message );
+	} );
+}
+function compress(){
+	outSet( "压缩文件：" );
+	plus.io.resolveLocalFileSystemURL( zip, function(entry){
+		outLine( "文件已存在，中止操作！" );
+		plus.nativeUI.confirm( "压缩文件已存在，是否立即删除", function(i){
+			if ( i.index == 0 ) {
+/*remove:删除目录
+entry.remove( succesCB, errorCB );						
+说明：以下情况删除目录将会导致失败： 目录中存在文件； 删除根目录； 删除目录成功通过succesCB回调返回，失败则通过errorCB返回。
+参数：
+succesCB: ( EntrySuccessCallback ) 可选 删除目录成功的回调函数.回调函数中无参数。
+errorCB: ( FileErrorCallback ) 可选 删除目录失败的回调函数*/
+				entry.remove();
+			}
+		} );
+	}, function(e){//文件不存在，压缩
+		doCompress();
+	} );
+}
+function doDecompress(){
+/*decompress:解压缩Zip文件
+void plus.zip.decompress( zipfile, target, successCB, errorCB);				
+参数：
+zipfile: ( String ) 可选 需解压Zip文件路径
+target: ( String ) 可选 解压Zip文件的目标路径，必须是路径
+successCB: ( ZipSuccessCallback ) 必选 解压Zip文件操作成功回调，在解压操作成功时调用。
+errorCB: ( ZipErrorCallback ) 必选 解压Zip文件操作失败回调，在解压操作失败时调用。*/
+	plus.zip.decompress( zip, unzip, function(){
+		outLine( "操作成功！保存路径为："+unzip );
+	}, function(e){
+		outLine( "操作失败："+e.message );
+	} );
+}
+function decompress(){
+	outSet( "解压文件：" );
+	plus.io.resolveLocalFileSystemURL( unzip, function(entry){
+		outLine( "目录已存在，中止操作！" );
+		plus.nativeUI.confirm( "解压目录已存在，是否立即删除", function(i){
+			if ( i.index == 0 ) {
+				entry.removeRecursively();
+			}
+		} );
+	}, function(e){
+		plus.io.resolveLocalFileSystemURL( zip, function(entry){
+			doDecompress();
+		}, function(e){
+			plus.nativeUI.alert( "压缩文件不存在，请先压缩文件！" );
+			outLine( "压缩文件不存在，中止操作！" );
+		} );
+	} );
+}
+function clearZip(){
+	outSet( "清空数据！" );
+	plus.io.resolveLocalFileSystemURL( "_doc/zip/", function(entry){
+		entry.removeRecursively();
+	} );
+}
+
+// 压缩图片
+function compressImage(){
+	outSet("开始压缩图片：");
+	plus.nativeUI.showWaiting();
+/*compressImage:图片压缩转换
+void plus.zip.compressImage( options, successCB, errorCB);				
+说明：可用于图片的质量压缩、大小缩放、方向旋转、区域裁剪、格式转换等。
+参数：
+options: ( CompressImageOptions ) 必选 图片压缩转换的参数
+successCB: ( CompressImageSuccessCallback ) 可选 图片压缩转换操作成功回调，操作成功时调用。
+errorCB: ( ZipErrorCallback ) 可选 图片压缩转换操作失败回调，操作失败时调用。
+
+CompressImageOptions:JSON对象，配置图片压缩转换的参数
+说明：设置width/height属性则表示需对图片进行缩放转换操作； 设置rotate属性则表示需对图片进行旋转转换操作； 设置clip属性则表示需对图片进行裁剪转换操作； 如同时设置了多个转换操作，则按缩放、旋转、裁剪顺序进行操作。
+属性：
+src: (String 类型 )压缩转换原始图片的路径.支持以下图片路径： 相对路径 - 相对于当前页面的host位置，如"a.jpg"，注意当前页面为网络地址则不支持； 绝对路径 - 系统绝对路径，如Android平台"/storage/sdcard0/Android/data/io.dcloud.HBuilder/.HBuilder/apps/HBuilder/www/ａ.jpg"，iOS平台"/var/mobile/Containers/Data/Application/757966CF-345C-4348-B07F-EEF83CF9A369/Library/Pandora/apps/HBuilder/www/a.png"； 相对路径URL(RelativeURL) - 以"_"开头的相对路径，如"_www/a.jpg"、"_doc/b.jpg"、"_documents/c.jpg"、"_downloads/d.jpg"； 本地路径URL - 以“file://”开头，后面跟随系统绝对路径。
+dst: (String 类型 )压缩转换目标图片的路径.支持以下图片路径： 绝对路径 - 系统绝对路径，如Android平台"/storage/sdcard0/Android/data/io.dcloud.HBuilder/.HBuilder/apps/HBuilder/doc/ａ.jpg"，iOS平台"/var/mobile/Containers/Data/Application/757966CF-345C-4348-B07F-EEF83CF9A369/Library/Pandora/apps/HBuilder/doc/a.png"； 相对路径URL(RelativeURL) - 以"_"开头的相对路径，如"_doc/b.jpg"、"_documents/c.jpg"、"_downloads/d.jpg"，注意不支持"_www"开头的路径； 本地路径URL - 以“file://”开头，后面跟随系统绝对路径。 注意：如果设置的路径无权限访问，则返回失败。
+overwrite: (Boolean 类型 )覆盖生成新文件.仅在dst制定的路径文件存在时有效： true表示覆盖存在的文件； false表示不覆盖，如果文件存在，则返回失败。 默认值为false。
+format: (String 类型 )压缩转换后的图片格式.支持"jpg"、"png",如果未指定则使用源图片的格式。
+quality: (Number 类型 )压缩图片的质量.取值范围为1-100，1表示使用最低的图片质量（转换后的图片文件最小）、100表示使用最高的图片质量（转换后的图片文件最大）； 默认值为50。
+width: (String 类型 )缩放图片的宽度.支持像素值（如"100px"）、百分比（如"50%"）、自动计算（如"auto"，即根据height与源图高的缩放比例计算，若未设置height则使用源图高度）； 默认值为"auto"。 注意：若设置了width属性值不合法（如"0px"），则不对图片进行缩放操作。
+height: (String 类型 )缩放图片的高度.支持像素值（如"100px"）、百分比（如"50%"）、自动计算（如"auto"，即根据width与源图宽的缩放比例计算，若未设置width则使用源图高度）； 默认值为"auto"。 注意：若设置了height属性值不合法（如"0px"），则不对图片进行缩放操作。
+rotate: (Number 类型 )旋转图片的角度.支持值：90-表示旋转90度；180-表示旋转180度；270-表示旋转270度。 注意：若设置rotate属性值不合法，则不对图片进行旋转操作。
+clip: (ClipImageOptions 类型 )裁剪图片的区域.值参考ClipImageOptions定义，若设置clip属性值不合法，则不对图片进行裁剪操作。
+
+ClipImageOptions:JSON对象，图片裁剪区域的参数
+属性：
+top: (String 类型 )图片裁剪区域与原图片上边界的偏移距离.支持像素值（如"10px"）、百分比（如"10%"）；默认值为"0px"。 注意：如果top值超出原图片高度，则图片裁剪失败。
+left: (Stirng 类型 )图片裁剪区域与原图片左边界的偏移距离.支持像素值（如"10px"）、百分比（如"10%"）；默认值为"0px"。 注意：如果left值超出原图片宽度，则图片裁剪失败。
+width: (String 类型 )图片裁剪区域的宽度.支持像素值（如"100px"）、百分比（如"50%"）、自动计算（如"auto"，即从left位置到图片右边界的宽度）；默认值为"auto"。 注意：如果left值加width值超出原图片宽度，则使用"auto"值进行裁剪。
+height: (String 类型 )图片裁剪区域的高度.支持像素值（如"100px"）、百分比（如"50%"）、自动计算（如"auto"，即从top位置到图片下边界的高度）；默认值为"auto"。 注意：如果top值加height值超出原图片高度，则使用"auto"值进行裁剪。
+
+CompressImageSuccessCallback:图片压缩转换操作成功回调接口
+void onSuccess( Event event ){
+	// Code here
+	var target = event.target; // 压缩转换后的图片url路径，以"file://"开头
+	var size = event.size; // 压缩转换后图片的大小，单位为字节（Byte）
+	var width = event.width; // 压缩转换后图片的实际宽度，单位为px
+	var height = event.height; // 压缩转换后图片的实际高度，单位为px
+}				
+参数：
+event: ( Event ) 可选 图片压缩转换后的图片信息.可通过event.target（String类型）获取压缩转换后的图片url路径，以"file://"开头，可直接在html页面中通过src属性引用，如Android平台"file:///storage/sdcard0/Android/data/io.dcloud.HBuilder/.HBuilder/apps/HBuilder/doc/ａ.jpg"，iOS平台"file:///var/mobile/Containers/Data/Application/757966CF-345C-4348-B07F-EEF83CF9A369/Library/Pandora/apps/HBuilder/doc/a.png"； 可通过event.size（Number类型）获取压缩转换后图片的大小，单位为字节（Byte）； 可通过event.width（Number类型）获取压缩转换后的图片的实际宽度，单位为px； 可通过event.height（Number类型）获取压缩转换后的图片的实际高度，单位为px。*/
+	plus.zip.compressImage({
+		src:"_www/img/shake/1.jpg",
+		dst:"_doc/cm.jpg",
+		quality:20,
+		overwrite:true,
+		width:'50%',
+		clip:{
+			top:"25%",
+			left:"25%",
+			width:"50%",
+			height:"50%"
+		}
+	},
+	function(i){
+		plus.nativeUI.closeWaiting();
+		display.style.display="block";
+		clipimg.src=i.target;
+		outLine("压缩图片成功："+JSON.stringify(i));
+	},function(e){
+		plus.nativeUI.closeWaiting();
+		outLine("压缩图片失败: "+JSON.stringify(e));
+	});
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+		<style type="text/css">
+.display {
+	width: 100%;
+	height: 100%;
+	display: none;
+	text-align: center;
+	padding-top: 30%;
+	position: fixed;
+	top: 0;
+	background: rgba(0,0,0,0.8);
+	z-index: 9999;
+	overflow: hidden;
+}
+		</style>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">ZIP</div>
+			<div class="nvbt idoc" onclick="openDoc('ZIP Document','/doc/zip.html')"></div>
+		</header>
+        <div id="dcontent" class="dcontent">
+			<br/>
+			<div class="button" onclick="compressImage()">压缩图片</div>
+			<ul class="dlist">
+				<li class="ditem" onclick="compress();">压缩文件</li>
+				<li class="ditem" onclick="decompress();">解压文件</li>
+				<li class="ditem" onclick="clearZip();">清理数据</li>
+			</ul>
+		</div>
+		<div id="output">
+Zip管理压缩文件，用于Zip文件的压缩与解压缩。
+		</div>
+		<div id='display' class="display" onclick="this.style.display='none';">
+			<img id="clipimg" style="margin:auto;"/>
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

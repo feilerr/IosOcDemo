@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+var server="http://demo.dcloud.net.cn/helloh5/uploader/upload.php";
+var files=[];
+// 上传文件
+function upload(){
+	if(files.length<=0){
+		plus.nativeUI.alert("没有添加上传文件！");
+		return;
+	}
+	outSet("开始上传：")
+	var wt=plus.nativeUI.showWaiting();
+/*createUpload:新建上传任务
+Upload plus.uploader.createUpload( url, options, completedCB );
+说明：请求上传管理创建新的上传任务，创建成功则返回Upload对象，用于管理上传任务。
+url: ( String ) 必选 要上传文件的目标地址,上传服务器的url地址，仅支持http或https协议。 允许创建多个相同url地址的上传任务。
+options: ( UploadOptions ) 可选 上传任务的参数.可通过此参数设置定义上传任务属性，如请求类型、上传优先级等。
+completedCB: ( UploadCompletedCallback ) 可选 上传任务完成回调函数.当上传任务提交完成时触发，成功或失败都会触发。
+返回值：Upload : Upload对象
+
+UploadOptions:JSON对象，创建上传任务的参数
+method: (String 类型 )网络请求类型.仅支持http协议的“POST”请求。
+blocksize: (number 类型 )上传任务每次上传的文件块大小（仅在支持断点续传的服务有效）.数值类型，单位为Byte（字节），默认值为102400，若设置值小于等于0则表示不分块上传。
+priority: (number 类型 )上传任务的优先级.数值类型，数值越大优先级越高，默认优先级值为0。
+timeout: (number 类型 )上传任务超时时间.数值类型，单位为s(秒)，默认值为120s。 超时时间为服务器响应请求的时间（不是上传任务完成的总时间），如果设置为0则表示永远不超时。
+retry: (number 类型 )上传任务重试次数.数值类型，默认为重试3次。
+retryInterval: (Number 类型 )上传任务重试间隔时间.数值类型，单位为s(秒)，默认值为30s。
+
+UploadCompletedCallback:上传任务完成时的回调函数
+void uploadCompleted( Upload upload, Number status ) {
+	// File upload completed code.
+}				
+说明：在上传任务完成时调用，上传任务失败也将触发此回调。
+upload: ( Upload ) 必选 上传任务对象
+status: ( Number ) 必选 上传结果状态码.HTTP传输协议状态码，如果未获取传输状态则其值则为0，如上传成功其值通常为200。
+
+Upload:Upload对象管理一个上传任务
+属性：
+id: 上传任务的标识
+url: 上传文件的服务器地址
+state: 任务的状态
+options: 上传任务的参数
+responseText: 上传任务完成后服务器返回的数据
+uploadedSize: 已完成上传数据的大小）
+totalSize: 上传数据的总大小
+方法：
+addFile: 添加上传文件
+addData: 添加上传数据
+start: 开始上传任务
+pause: 暂停上传任务
+resume: 恢复暂停的上传任务
+abort: 取消上传任务
+addEventListener: 添加上传任务事件监听器
+getAllResponseHeaders: 获取上传请求HTTP响应头部信息
+getResponseHeader: 获取上传请求指定的HTTP响应头部的值
+setRequestHeader: 设置上传请求的HTTP头数据*/
+	var task=plus.uploader.createUpload(server,
+		{method:"POST"},
+		function(t,status){ //上传完成
+			if(status==200){
+/*responseText:上传任务完成后服务器返回的数据
+upload.responseText;
+说明：String 类型 只读属性
+表示当前上传任务的状态，可通过addEventListener()方法监听statechanged事件监听任务状态的变化。*/
+				outLine("上传成功："+t.responseText);
+/*setItem:修改或添加键值(key-value)对数据到应用数据存储中
+void plus.storage.setItem(key, value);				
+说明：如果设置的键在应用数据存储中已经存在，更新存储的键值。 存储的键和值没有容量限制，但过多的数据量会导致效率降低，建议单个键值数据不要超过10Kb。
+参数：
+key: ( DOMString ) 必选 存储的键值
+value: ( DOMString ) 必选 存储的内容*/
+				plus.storage.setItem("uploader",t.responseText);
+				var w=plus.webview.create("uploader_ret.html","uploader_ret.html",{scrollIndicator:'none',scalable:false});
+				w.addEventListener("loaded",function(){
+					wt.close();
+					w.show("slide-in-right",300);
+				},false);
+			}else{
+				outLine("上传失败："+status);
+				wt.close();
+			}
+		}
+	);
+/*addData:添加上传数据
+Boolean upload.addData( key, value );						
+说明：向上传任务中添加数据，必须在任务开始上传前调用。 以下情况会导致添加上传文件失败： 1. key参数中指定的键名在任务中已经存在，则添加失败返回false； 2. 上传任务已经开始调度，调用此方法则添加失败返回false。*/
+	task.addData("client","HelloH5+");
+	task.addData("uid",getUid());
+	for(var i=0;i<files.length;i++){
+		var f=files[i];
+/*addFile:添加上传文件
+Boolean upload.addFile( path, options );						
+说明：向上传任务中添加文件，必须在任务开始上传前调用。 以下情况会导致添加上传文件失败： 1. options参数中指定的key在任务中已经存在，则添加失败返回false； 2. path参数指定的文件路径不合法或文件不存在，则添加失败返回false； 3. 上传任务已经开始调度，调用此方法则添加失败返回false。
+path: ( String ) 必选 添加上传文件的路径,仅支持本地文件路径。
+options: ( UploadFileOptions ) 必选 要添加上传文件的参数,可通过此参数设置上传任务属性，如文件标识、文件名称、文件类型等。
+
+UploadFileOptions:JSON对象，添加上传文件的参数
+属性：
+key: 文件键名
+name: 文件名称
+mime: 文件类型
+* */
+       task.addFile(f.path,{key:f.name});
+	}
+	task.start();
+}
+// 拍照添加文件
+function appendByCamera(){
+	plus.camera.getCamera().captureImage(function(p){
+		appendFile(p);
+	});	
+}
+// 从相册添加文件
+function appendByGallery(){
+	plus.gallery.pick(function(p){
+        appendFile(p);
+    });
+}
+// 添加文件
+var index=1;
+function appendFile(p){
+	var fe=document.getElementById("files");
+	var li=document.createElement("li");
+	var n=p.substr(p.lastIndexOf('/')+1);
+	li.innerText=n;
+	fe.appendChild(li);
+	files.push({name:"uploadkey"+index,path:p});
+	index++;
+	empty.style.display="none";
+}
+// 产生一个随机数
+function getUid(){
+	return Math.floor(Math.random()*100000000+10000000).toString();
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Uploader</div>
+			<div class="nvbt idoc" onclick="openDoc('Uploader Document','/doc/uploader.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<p class="heading">上传文件列表：</p>
+			<ul id="files" style="text-align:left;">
+				<p id="empty" style="font-size:12px;color:#C6C6C6;">无上传文件</p>
+			</ul>
+			<table style="width:100%;">
+				<tbody>
+					<tr>
+						<td style="width:40%"><div class="button button-select" onclick="appendByCamera()">拍照</div></td>
+						<td style="width:40%"><div class="button button-select" onclick="appendByGallery()">相册选取</div></td>
+					</tr>
+				</tbody>
+			</table>
+			<br/>
+			<div class="button" onclick="upload()">上 传</div>
+			<br/>
+			<!--<ul class="dlist">
+				<li class="ditem" onclick="appendByCamera()">拍照添加文件</li>
+				<li class="ditem" onclick="appendByGallery()">相册添加文件</li>
+			</ul>-->
+		</div>
+		<div id="output">
+Uploader用于管理文件的上传，用于从本地上传各种文件到网络服务器，支持跨域访问操作。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

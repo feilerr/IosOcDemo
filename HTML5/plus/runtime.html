@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+function getVersion(){
+	/*version: 客户端的版本号。字符串类型，在编译环境中设置的apk/ipa版本号。
+    innerVersion: 客户端5+运行环境的版本号。5+运行环境版本号，格式为：[主版本号].[次版本号].[修订版本号].[编译代号]。*/
+	outSet("程序版本号："+plus.runtime.version+"\n内核版本号："+plus.runtime.innerVersion);
+}
+function getArguments(){
+/*launcher:应用启动来源
+plus.runtime.launcher;					
+说明：String 类型 只读属性5+ APP启动类型，可取以下值： 
+"default"：默认启动方式，通常表示应用列表启动（360手助中搜索启动）；
+"scheme"：通过urlscheme方式触发启动； 
+"push"：通过点击系统通知方式触发启动；
+"stream"：通过流应用api（plus.stream.open）启动；
+"shortcut"：通过快捷方式启动，iOS平台表示通过3D Touch快捷方式，Android平台表示通过桌面快捷方式启动；
+"barcode"：通过二维码扫描启动。
+
+arguments：第三方程序调用时传递给程序的参数
+plus.runtime.arguments;					
+说明：String 类型 只读属性。第三方程序传递过来的参数，字符串格式类型数据。 不是由第三方程序调用启动，则返回空字符串。
+* */
+	outSet("启动方式: "+plus.runtime.launcher+"\n启动参数: "+plus.runtime.arguments);
+}
+function restartApp() {
+	plus.runtime.restart();//重启当前的应用
+}
+function getWidgetInfo() {
+/*getProperty:获取指定APPID对应的应用信息
+void plus.runtime.getProperty( appid, getPropertyCB );				
+参数：
+appid: ( String ) 必选 应用的Appid
+getPropertyCB: ( GetPropertyCallBack ) 必选 获得应用信息成功回调函数
+
+appid:当前应用的APPID
+plus.runtime.appid;				
+说明：String 类型 只读属性.当前应用的APPID，字符串类型。注意，如果是在HBuilder真机运行获取的是固定值“HBuilder”，需要提交App云端打包后运行才能获取真实的APPID值。
+
+GetPropertyCallBack：获取应用属性成功回调函数
+void onGetPropertyCB(widgetInfo){
+	// Code here
+}				
+参数：widgetInfo: ( WidgetInfo ) 必选 应用信息，参见：WidgetInfo
+
+WidgetInfo：JSON对象，应用信息
+属性：
+appid: (String 类型 )应用的APPID
+version: (String 类型 )应用的版本号
+name: (String 类型 )应用的名称
+description: (String 类型 )应用描述信息
+author: (String 类型 )应用描述信息
+email: (String 类型 )开发者邮箱地址
+license: (String 类型 )应用授权描述信息
+licensehref: (String 类型 )应用授权说明链接地址
+features: (String[] 类型 )应用许可特性列表
+* */
+	plus.runtime.getProperty( plus.runtime.appid, function ( wgtinfo ) {
+		//appid属性
+		var wgtStr = "appid:"+wgtinfo.appid;
+		//version属性
+		wgtStr += "\nversion:"+wgtinfo.version;
+		//name属性
+		wgtStr += "\nname:"+wgtinfo.name;
+		//description属性
+		wgtStr += "\ndescription:"+wgtinfo.description;
+		//author属性
+		wgtStr += "\nauthor:"+wgtinfo.author;
+		//email属性
+		wgtStr += "\nemail:"+wgtinfo.email;
+		//licence属性
+		wgtStr += "\nlicense:"+wgtinfo.license;
+		//licensehref属性
+		wgtStr += "\nlicensehref:"+wgtinfo.licensehref;
+		//features 属性
+		wgtStr += "\nfeatures:"+wgtinfo.features;
+		outSet( wgtStr );
+	} );
+}
+function setBadge() {
+/*setBadgeNumber:设置程序快捷方式上显示的提示数字
+void plus.runtime.setBadgeNumber( number );				
+参数：number: ( String ) 必选 在快捷方式上显示的数字，参数为0则表示清除提示数字。
+返回值：void : 无
+平台支持：Android - 2.2+ (支持): 目前仅支持小米(MIUI v5)，其它设备调用后无任何效果*/
+	plus.runtime.setBadgeNumber( 50 );
+	outSet( "设置程序图标右上角显示的提示数字为50\n请返回桌面查看" );
+	if(plus.os.name=="iOS"){
+		outLine( '*如果无法设置提示数字，请到"设置"->"通知"中配置应用在通知中心显示!' );
+	}else{
+		outLine( "注：仅支持小米(MIUI v5)，其它设备暂不支持此功能!" );
+	}
+}
+function clearBadge() {
+	plus.runtime.setBadgeNumber( 0 );
+	outSet( "清除程序图标右上角显示的提示数字\n请返回桌面查看" );
+	if(plus.os.name=="iOS"){
+		outLine( '如果无法清除提示数字，请到"设置"->"通知"中配置应用在通知中心显示!' );
+	}else{
+		outLine( "注：仅支持小米(MIUI v5)，其它设备暂不支持此功能!" );
+	}
+}
+function exitApp(){
+	if(plus.os.name=="Android"){
+		plus.runtime.quit();//退出客户端程序
+	}else{
+		outSet( "此平台不支持直接退出程序，请按Home键切换应用" );
+	}
+}
+function updateApp(){
+	var url='http://demo.dcloud.net.cn/helloh5/update/HelloH5.wgtu';
+	plus.nativeUI.showWaiting("升级中...");
+	var dtask = plus.downloader.createDownload( url, {method:"GET"}, function(d,status){
+		if ( status == 200 ) { 
+			console.log( "Download wgtu success: " + d.filename );
+/*install:安装应用
+void plus.runtime.install( wgtFilePath, options, installSuccessCB, installErrorCB);				
+说明：支持以下类型安装包： 
+1. 应用资源安装包（wgt），扩展名为'.wgt'；
+2. 应用资源差量升级包（wgtu），扩展名为'.wgtu'；
+3. 系统程序安装包，要求使用当前平台支持的安装包格式。 
+注意：仅支持本地地址，调用此方法前需把安装包从网络地址或其他位置放置到运行时环境可以访问的本地目录。
+参数：
+wgtFilePath: ( String ) 必选 要安装的文件路径.应用安装文件或基座安装文件（扩展名为'.wgt'）
+options: ( WidgetOptions ) 可选 应用安装设置的参数
+installSuccessCB: ( InstallSuccessCallback ) 可选 正确安装后的回调
+installErrorCB: ( InstallErrorCallback ) 可选 安装失败的回调
+
+WidgetOptions:JSON对象，应用安装参数
+说明：可通过对象设置安装的应用是否进行appid校验、版本号校验等。
+属性：
+force: (Boolean 类型 )是否强制安装.true表示强制安装，不进行版本号的校验；false则需要版本号校验，
+如果将要安装应用的版本号不高于现有应用的版本号则终止安装，并返回安装失败。 仅安装wgt和wgtu时生效，默认值 false。*/
+			plus.runtime.install(d.filename,{},function(){
+				plus.nativeUI.closeWaiting();
+				plus.nativeUI.alert("Update wgtu success, restart now!",function(){
+					plus.runtime.restart();
+				});
+			},function(e){
+				plus.nativeUI.closeWaiting();
+				alert("Update wgtu failed: "+e.message);
+			});
+		} else {
+			plus.nativeUI.closeWaiting();
+			 alert( "Download wgtu failed: " + status ); 
+		} 
+	} );
+	dtask.addEventListener('statechanged',function(d,status){
+		console.log("statechanged: "+d.state);
+	});
+	dtask.start();
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Runtime</div>
+			<div class="nvbt idoc" onclick="openDoc('Runtime Document','/doc/runtime.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<br/>
+			<div class="button" onclick="clicked('runtime_launch.html',true);">
+				调用第三方程序
+			</div>
+			<br/>
+			<ul class="dlist">
+				<li class="ditem" onclick="getVersion()">获取版本信息</li>
+				<li class="ditem" onclick="getArguments()">获取启动信息</li>
+				<li class="ditem" onclick="restartApp()">重启当前应用</li>
+	            <li class="ditem" onclick="getWidgetInfo()">获取当前应用的基本属性</li>
+				<li class="ditem" onclick="setBadge()">设置程序图标右上角数字</li>
+				<li class="ditem" onclick="clearBadge()">清除程序图标右上角数字</li>
+				<li class="ditem" onclick="exitApp()">退出当前应用</li>
+				<!--li class="ditem" onclick="updateApp()">WGTU Update</li-->
+			</ul>
+		</div>
+		<div id="output">
+Runtime管理程序运行时环境，可用于获取程序的各种信息、与第三方程序通讯等。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>

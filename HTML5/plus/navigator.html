@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<meta name="HandheldFriendly" content="true"/>
+		<meta name="MobileOptimized" content="320"/>
+		<title>Hello H5+</title>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script type="text/javascript">
+function fullscreen(){
+	outSet( "应用全屏显示！" );
+/*setFullscreen:设置应用是否全屏显示
+void plus.navigator.setFullscreen( fullscreen );				
+说明：
+设置应用在全屏模式显示时，将隐藏系统状态栏，通常游戏类应用才会设置为全屏模式显示。
+参数：
+fullscreen: ( Boolean ) 必选 是否全屏模式显示.true表示全屏模式显示，false表示非全屏模式显示，默认为非全屏模式显示。*/
+	plus.navigator.setFullscreen(true);
+}
+function unfullscreen(){
+	outSet( "应用非全屏显示！" );
+	plus.navigator.setFullscreen(false);
+}
+function isfullscreen(){
+	outSet( "是否全屏："+(plus.navigator.isFullscreen()?"是":"否") );
+}
+
+function customerNavigator(){
+	var wn=clicked('navigator_status.html');
+	var bcolor=plus.navigator.getStatusBarBackground();//获取应用在前台运行时系统状态栏的背景颜色。
+/*getStatusBarStyle:获取系统状态栏样式
+String plus.navigator.getStatusBarStyle();			
+说明：获取应用在前台运行时系统状态栏的样式。
+返回值：String : 系统状态栏的背景样式，可取值：
+"UIStatusBarStyleDefault"：iOS6及以下系统状态栏为黑底白字，iOS7及以上系统用于定义系统状态栏上文字颜色为黑字（适用于浅色背景）；
+"UIStatusBarStyleBlackOpaque"：深色背景色样式，iOS6及以下系统状态栏为黑底白字，iOS7及以上系统用于定义系统状态栏上文字颜色为白色（适用于深色背景）； 
+"UIStatusBarStyleBlackTranslucent"：iOS6及以下系统在启动界面为灰底白字，iOS7及以上系统不会返回此值。*/
+	var bstyle=plus.navigator.getStatusBarStyle();
+	wn.addEventListener('close',function(){
+		//页面关闭后状态栏重置回以前的颜色
+		plus.navigator.setStatusBarBackground(bcolor);
+		//页面关闭后状态栏重置回以前的样式
+		plus.navigator.setStatusBarStyle(bstyle);
+	},false);
+}
+		</script>
+		<link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8"/>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nvbt iback" onclick="back(true);"></div>
+			<div class="nvtt">Navigator</div>
+			<div class="nvbt idoc" onclick="openDoc('Navigator Document','/doc/navigator.html')"></div>
+		</header>
+		<div id="dcontent" class="dcontent">
+			<ul class="dlist">
+				<li class="ditem" onclick="fullscreen();">全屏显示</li>
+				<li class="ditem" onclick="unfullscreen();">非全屏显示</li>
+				<li class="ditem" onclick="isfullscreen();">是否全屏</li>
+			</ul>
+			<br/>
+			<div class="button" onclick="customerNavigator()">状态栏样式</div>
+		</div>
+		<div id="output">
+Navigator用于管理浏览器运行环境信息，可用于设置应用全屏显示等。
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/immersed.js" ></script>
+</html>
