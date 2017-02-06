@@ -15,23 +15,28 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, when a URL fail to be downloaded, the URL is blacklisted so the library won't keep trying.
      * This flag disable this blacklisting.
+     * 默认情况下，当URL下载失败时，URL会被列入黑名单，导致库不会再去重试，该标记用于禁用黑名单
      */
     SDWebImageRetryFailed = 1 << 0,
 
     /**
      * By default, image downloads are started during UI interactions, this flags disable this feature,
      * leading to delayed download on UIScrollView deceleration for instance.
+     * 默认情况下，图片下载开始于UI交互，该标记禁用这一特性，这样下载延迟到UIScrollView减速时
      */
     SDWebImageLowPriority = 1 << 1,
 
     /**
      * This flag disables on-disk caching
+     * 该标记禁用磁盘缓存
      */
     SDWebImageCacheMemoryOnly = 1 << 2,
 
     /**
      * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
      * By default, the image is only displayed once completely downloaded.
+     * 该标记启用渐进式下载，图片在下载过程中是渐渐显示的，如同浏览器一下
+     * 默认情况下，图像在下载完成后一次性显示
      */
     SDWebImageProgressiveDownload = 1 << 3,
 
@@ -42,36 +47,46 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * If a cached image is refreshed, the completion block is called once with the cached image and again with the final image.
      *
      * Use this flag only if you can't make your URLs static with embedded cache busting parameter.
+     * 即使图片缓存了，也期望HTTP响应cache control，并在需要的情况下从远程刷新图片
+     * 磁盘缓存将被NSURLCache处理而不是SDWebImage，因为SDWebImage会导致轻微的性能下载。
+     * 该标记帮助处理在相同请求URL后面改变的图片。如果缓存图片被刷新，则完成block会使用缓存图片调用一次
+     * 然后再用最终图片调用一次
      */
     SDWebImageRefreshCached = 1 << 4,
 
     /**
      * In iOS 4+, continue the download of the image if the app goes to background. This is achieved by asking the system for
      * extra time in background to let the request finish. If the background task expires the operation will be cancelled.
+     * 在iOS 4+系统中，当程序进入后台后继续下载图片。这将要求系统给予额外的时间让请求完成
+     * 如果后台任务超时，则操作被取消
      */
     SDWebImageContinueInBackground = 1 << 5,
 
     /**
      * Handles cookies stored in NSHTTPCookieStore by setting
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
+     * 通过设置NSMutableURLRequest.HTTPShouldHandleCookies = YES;来处理存储在NSHTTPCookieStore中的cookie
      */
     SDWebImageHandleCookies = 1 << 6,
 
     /**
      * Enable to allow untrusted SSL certificates.
      * Useful for testing purposes. Use with caution in production.
+     * 允许不受信任的SSL认证
      */
     SDWebImageAllowInvalidSSLCertificates = 1 << 7,
 
     /**
      * By default, images are loaded in the order in which they were queued. This flag moves them to
      * the front of the queue.
+     * 默认情况下，图片下载按入队的顺序来执行。该标记将其移到队列的前面，以便图片能立即下载而不是等到当前队列被加载
      */
     SDWebImageHighPriority = 1 << 8,
     
     /**
      * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
      * of the placeholder image until after the image has finished loading.
+     * 默认情况下，占位图片在加载图片的同时被加载。该标记延迟占位图片的加载直到图片已以被加载完成
      */
     SDWebImageDelayPlaceholder = 1 << 9,
 
@@ -79,6 +94,8 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * We usually don't call transformDownloadedImage delegate method on animated images,
      * as most transformation code would mangle it.
      * Use this flag to transform them anyway.
+     * 通常我们不调用动画图片的transformDownloadedImage代理方法，因为大多数转换代码可以管理它。
+     * 使用这个票房则不任何情况下都进行转换。
      */
     SDWebImageTransformAnimatedImage = 1 << 10,
     
@@ -86,6 +103,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, image is added to the imageView after download. But in some cases, we want to
      * have the hand before setting the image (apply a filter or add it with cross-fade animation for instance)
      * Use this flag if you want to manually set the image in the completion when success
+     * 默认情况下,图像添加到imageView后下载。但是在某些情况下,我们想要手之前设置的图像(应用过滤器与同时淡出淡入或添加动画)使用这个标志,如果你想手动设置图像在完成成功
      */
     SDWebImageAvoidAutoSetImage = 1 << 11
 };
@@ -110,6 +128,7 @@ typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
  * @param imageURL     The url of the image to be downloaded
  *
  * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
+ *  控制当图片在缓存中没有找到时，应该下载哪个图片
  */
 - (BOOL)imageManager:(SDWebImageManager *)imageManager shouldDownloadImageForURL:(NSURL *)imageURL;
 
@@ -122,6 +141,7 @@ typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
  * @param imageURL     The url of the image to transform
  *
  * @return The transformed image object.
+ * 允许在图片已经被下载完成且被缓存到磁盘或内存前立即转换
  */
 - (UIImage *)imageManager:(SDWebImageManager *)imageManager transformDownloadedImage:(UIImage *)image withURL:(NSURL *)imageURL;
 

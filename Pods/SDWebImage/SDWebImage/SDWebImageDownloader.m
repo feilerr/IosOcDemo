@@ -14,13 +14,17 @@ static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
-
+//SDWebImageDownloader下载管理器是一个单例类，它主要负责图片的下载操作的管理。图片的下载是放在一个s操作队列中来完成的
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic) NSOperation *lastAddedOperation;
 @property (assign, nonatomic) Class operationClass;
+/**
+    图片下载的回调信息存储在SDWebImageDownloader类的 URLCallbacks 属性中，该属性是一个字典，key是图片的URL地址，value则是一个数组，包含每个图片的多组回调信息。由于我们允许多个图片同时下载，因此可能会有多个线程同时操作URLCallbacks属性。为了保证URLCallbacks操作(添加、删除)的线程安全性，SDWebImageDownloader将这些操作作为一个个任务放到barrierQueue队列中，并设置屏障来确保同一时间只有一个线程操作URLCallbacks属性
+ */
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 @property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
+// 所有下载操作的网络响应序列化处理是放在一个自定义的并行调度队列中来处理的
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
 
 // The session in which data tasks will run
@@ -142,6 +146,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
         }
 
         // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
+        // 1. 创建请求对象，并根据options参数设置其属性
+        // 为了避免潜在的重复缓存(NSURLCache + SDImageCache)，如果没有明确告知需要缓存，则禁用图片请求的缓存操作
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:(options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:timeoutInterval];
         request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         request.HTTPShouldUsePipelining = YES;
@@ -151,10 +157,13 @@ static NSString *const kCompletedCallbackKey = @"completed";
         else {
             request.allHTTPHeaderFields = wself.HTTPHeaders;
         }
+        // 2. 创建SDWebImageDownloaderOperation操作对象，并进行配置
+        // 配置信息包括是否需要认证、优先级
         operation = [[wself.operationClass alloc] initWithRequest:request
                                                         inSession:self.session
                                                           options:options
                                                          progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                                             // 3. 从管理器的callbacksForURL中找出该URL所有的进度处理回调并调用
                                                              SDWebImageDownloader *sself = wself;
                                                              if (!sself) return;
                                                              __block NSArray *callbacksForURL;
@@ -169,6 +178,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                              }
                                                          }
                                                         completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                                            // 4. 从管理器的callbacksForURL中找出该URL所有的完成处理回调并调用，
+                                                            // 如果finished为YES，则将该url对应的回调信息从URLCallbacks中删除
                                                             SDWebImageDownloader *sself = wself;
                                                             if (!sself) return;
                                                             __block NSArray *callbacksForURL;
@@ -184,6 +195,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                             }
                                                         }
                                                         cancelled:^{
+                                                            // 5. 取消操作将该url对应的回调信息从URLCallbacks中删除
                                                             SDWebImageDownloader *sself = wself;
                                                             if (!sself) return;
                                                             dispatch_barrier_async(sself.barrierQueue, ^{
@@ -203,7 +215,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
         } else if (options & SDWebImageDownloaderLowPriority) {
             operation.queuePriority = NSOperationQueuePriorityLow;
         }
-
+        // 6. 将操作加入到操作队列downloadQueue中
+        // 如果是LIFO顺序，则将新的操作作为原队列中最后一个操作的依赖，然后将新操作设置为最后一个操作
         [wself.downloadQueue addOperation:operation];
         if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
             // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
@@ -223,7 +236,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         }
         return;
     }
-
+    // 以dispatch_barrier_sync操作来保证同一时间只有一个线程能对URLCallbacks进行操作
     dispatch_barrier_sync(self.barrierQueue, ^{
         BOOL first = NO;
         if (!self.URLCallbacks[url]) {
@@ -232,6 +245,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         }
 
         // Handle single download of simultaneous download request for the same URL
+        // 处理同一URL的同步下载请求的单个下载
         NSMutableArray *callbacksForURL = self.URLCallbacks[url];
         NSMutableDictionary *callbacks = [NSMutableDictionary new];
         if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
